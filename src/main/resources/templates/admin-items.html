@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Администрирование витрины магазина. Список товаров</title>
+  </head>
+  <body>
+    <form method="post" th:action="@{/admin-items/add}">
+      <legend>Добавление товара</legend><br>
+      <label for="title">Название: </label><input type="text" id="title" name="title" size="50"><br><br>
+      <label for="description">Описание:</label><textarea id="description" name="description" cols="50"></textarea><br><br>
+      <input type="submit" value="Добавить товар"><br>
+    </form>
+  </body>
+</html>
