@@ -13,7 +13,7 @@
 <div class="container form-container">
     <h2 class="text-center mb-4">Редактировать товар</h2>
 
-    <form th:action="@{/item/save}" th:object="${item}" method="post">
+    <form th:action="@{/admin-items/save}" th:object="${item}" method="post" enctype="multipart/form-data">
         <input type="hidden" th:field="*{id}" />
 
         <div class="mb-3 row">
@@ -38,11 +38,18 @@
         </div>
 
         <div class="mb-3 row">
-            <label for="imageFile" class="col-sm-3 col-form-label">Изображение:</label>
+            <label>Текущее изображение:</label><br>
+            <img th:if="*{imgPath != null}" th:src="*{imgPath}" style="max-width: 200px;"/>
+            <p th:if="*{imgPath == null}"><i>отсутствует</i></p>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="imageFile" class="col-sm-3 col-form-label">Изменить изображение:</label>
             <div class="col-sm-9">
-                <input type="file" name="imageFile" id="imageFile" accept="image/png, image/jpeg" />
+                <input type="file" name="imageFile" id="imageFile" accept="image/*" />
             </div>
         </div>
+        <br><br><br>
 
         <div class="row">
             <div class="col-sm-9 offset-sm-3">

@@ -3,7 +3,7 @@ create schema if not exists market;
 
 -- таблица items
 create table if not exists market.items(
-	id bigint primary key,
+	id bigserial primary key,
     title varchar,
     description varchar,
     img_path varchar,

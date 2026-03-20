@@ -6,7 +6,7 @@
 </head>
 <body>
 <h2>Список товаров</h2>
-<form th:action="@{/admin-items/new}" method="get">
+<form th:action="@{/admin-items/add}" method="get">
   <button type="submit" class="btn btn-success">Добавить</button>
 </form>
 <br>
@@ -23,16 +23,16 @@
   </thead>
   <tbody>
   <tr th:each="item : ${items}">
-    <td th:text="${item.id}">1</td>
-    <td th:text="${item.title}">Название товара</td>
-    <td th:text="${item.description}">Описание товара</td>
-    <td th:text="${item.imgPath}">Изображение</td>
-    <td th:text="${item.price}">1</td>
+    <td th:text="${item.id}"></td>
+    <td th:text="${item.title}"></td>
+    <td th:text="${item.description}"></td>
+    <td th:text="${item.imgPath}"></td>
+    <td th:text="${item.price}"></td>
     <td>
-      <form th:action="@{/admin-items/edit/{id}(id=${item.id})}" method="put" style="display:inline;">
+      <form th:action="@{/admin-items/edit/{id}(id=${item.id})}" method="get" style="display:inline;">
         <button type="submit" class="btn btn-primary">Редактировать</button>
       </form>
-      <form th:action="@{/admin-items/delete/{id}(id=${item.id})}" method="delete" style="display:inline;">
+      <form th:action="@{/admin-items/delete/{id}(id=${item.id})}" method="get" style="display:inline;">
         <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены?');">Удалить</button>
       </form>
     </td>
