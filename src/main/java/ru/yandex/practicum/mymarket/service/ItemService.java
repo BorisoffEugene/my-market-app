@@ -1,6 +1,9 @@
 package ru.yandex.practicum.mymarket.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.mymarket.domain.Item;
@@ -28,5 +31,17 @@ public class ItemService {
 
     public Optional<Item> findById(Long id) {
         return itemRepository.findById(id);
+    }
+
+    public Page<Item> findByFiltr(String search, String sortType, int pageNumber, int pageSize) {
+        Sort sort = switch (sortType) {
+            case "ALPHA" -> Sort.by("title");
+            case "PRICE" -> Sort.by("price");
+            default -> Sort.unsorted();
+        };
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        return itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
     }
 }
