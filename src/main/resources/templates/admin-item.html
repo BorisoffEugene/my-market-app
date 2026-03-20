@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Администрирование витрины магазина. Редактирование товара</title>
+    <link href="https://cdn.jsdelivr.net" rel="stylesheet">
+    <style>
+        .form-container { max-width: 250px; margin: 30px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container form-container">
+    <h2 class="text-center mb-4">Редактировать товар</h2>
+
+    <form th:action="@{/item/save}" th:object="${item}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="mb-3 row">
+            <label for="title" class="col-sm-3 col-form-label">Название:</label>
+            <div class="col-sm-9">
+                <input type="text" th:field="*{title}" class="form-control" id="title" required />
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="description" class="col-sm-3 col-form-label">Описание:</label>
+            <div class="col-sm-9">
+                <textarea th:field="*{description}" class="form-control" id="description" rows="3"></textarea>
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="price" class="col-sm-3 col-form-label">Цена:</label>
+            <div class="col-sm-9">
+                <input type="number" min="1" step="1" th:field="*{price}" class="form-control" id="price" required />
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="imageFile" class="col-sm-3 col-form-label">Изображение:</label>
+            <div class="col-sm-9">
+                <input type="file" name="imageFile" id="imageFile" accept="image/png, image/jpeg" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-9 offset-sm-3">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a th:href="@{/admin-items}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
