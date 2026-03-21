@@ -13,6 +13,13 @@ public class Item {
     private String imgPath;
     private Long price;
 
+    public Item() {
+    }
+
+    public Item(Long id) {
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }

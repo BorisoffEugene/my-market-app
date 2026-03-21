@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping({"/items", "/"})
@@ -23,17 +27,27 @@ public class ItemController {
     public String findByFiltr(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "NO") String sort,
-            @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "5") int pageSize,
             Model model
-    ) {
+    ){
         Page<Item> paging = itemService.findByFiltr(search, sort, pageNumber, pageSize);
+        List<Item> content = new ArrayList<>(paging.getContent());
 
-        //todo paging to List<List<Item>> (по 3 в списке)
+        int colCount = 3;
+        int mod = content.size() % colCount;
+
+        for (int i = 1; i <= mod; i++)
+            content.add(new Item(-1L));
+
+        List<List<Item>> items = IntStream.range(0, (content.size() + colCount - 1) / colCount)
+                .mapToObj(i -> content.subList(i * colCount, Math.min((i + 1) * colCount, content.size())))
+                .collect(Collectors.toList());
 
         model.addAttribute("search", search);
         model.addAttribute("sort", sort);
         model.addAttribute("paging", paging);
+        model.addAttribute("items", items);
 
         return "items";
     }
