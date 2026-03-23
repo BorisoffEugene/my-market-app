@@ -16,6 +16,14 @@ public class Order {
 
     private Long totalSum;
 
+    public Order() {
+    }
+
+    public Order(List<OrderItem> items, Long totalSum) {
+        this.items = items;
+        this.totalSum = totalSum;
+    }
+
     public Long getId() {
         return id;
     }

@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.domain.Order;
 import ru.yandex.practicum.mymarket.service.OrderService;
 
@@ -29,7 +28,7 @@ public class OrderController {
         Optional<Order> order = orderService.findById(id);
         if (order.isPresent()) {
             model.addAttribute("newOrder", newOrder);
-            model.addAttribute("item", order.get());
+            model.addAttribute("order", order.get());
             return "order";
         }
 

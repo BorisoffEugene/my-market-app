@@ -2,6 +2,7 @@ package ru.yandex.practicum.mymarket.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.mymarket.domain.Order;
 import ru.yandex.practicum.mymarket.repository.OrderRepository;
 
@@ -19,5 +20,11 @@ public class OrderService {
 
     public Optional<Order> findById(Long id) {
         return orderRepository.findById(id);
+    }
+
+    @Transactional
+    public Order save(Order order) {
+        order.getItems().forEach(item -> item.setOrder(order));
+        return orderRepository.save(order);
     }
 }

@@ -23,4 +23,8 @@ public class CartService {
     public void changeCount(String action, Long id) {
         itemRepository.changeCount(action, id);
     }
+
+    public void clearCount() {
+        itemRepository.clearCount();
+    }
 }
