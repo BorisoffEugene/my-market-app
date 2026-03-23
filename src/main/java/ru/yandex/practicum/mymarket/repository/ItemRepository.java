@@ -22,5 +22,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByCountGreaterThan(int minCount);
 
     @Query("select coalesce(sum(i.price * i.count), 0) from Item i where i.count > :minCount")
-    int sumPriceByCountGreaterThan(@Param("minCount") int minCount);
+    Long sumPriceByCountGreaterThan(@Param("minCount") int minCount);
 }

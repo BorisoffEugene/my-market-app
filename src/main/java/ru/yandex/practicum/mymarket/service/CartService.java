@@ -16,7 +16,7 @@ public class CartService {
         return itemRepository.findByCountGreaterThan(0);
     }
 
-    public int total() {
+    public Long total() {
         return itemRepository.sumPriceByCountGreaterThan(0);
     }
 

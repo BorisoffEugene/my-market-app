@@ -18,7 +18,7 @@ public class CartController {
     @GetMapping
     public String items(Model model) {
         List<Item> items = cartService.items();
-        int total = cartService.total();
+        Long total = cartService.total();
 
         model.addAttribute("items", items);
         model.addAttribute("total", total);

@@ -7,8 +7,8 @@ create table if not exists market.items(
     title varchar not null,
     description varchar,
     img_path varchar,
-    price bigint check(price > 0),
-    count int not null default 0 check(price >= 0)
+    price bigint not null check(price > 0),
+    count int not null default 0 check(count >= 0)
 );
 
 comment on table market.items is 'Карточка товара';
@@ -17,7 +17,36 @@ comment on column market.items.title is 'Название';
 comment on column market.items.description is 'Описание';
 comment on column market.items.img_path is 'Путь к изображению товара';
 comment on column market.items.price is 'Цена';
-comment on column market.items.count is 'Число товаров в корзине';
+comment on column market.items.count is 'Количество товаров в корзине';
 
 create index if not exists idx_items_title on market.items (title);
 create index if not exists idx_items_description on market.items (description);
+
+-- таблица orders
+create table if not exists market.orders(
+	id bigserial primary key,
+	total_sum bigint not null check(total_sum > 0)
+);
+
+comment on table market.orders is 'Заказы';
+comment on column market.orders.id is 'ID записи';
+comment on column market.orders.total_sum is 'Суммарная стоимость заказа';
+
+-- таблица order_items
+create table if not exists market.order_items(
+	id bigserial primary key,
+	order_id bigint not null references market.orders(id) on delete cascade,
+	item_id bigint not null references market.items(id) on delete cascade,
+	count int not null check(count > 0),
+	price bigint not null check(price > 0)
+);
+
+comment on table market.order_items is 'Состав заказа';
+comment on column market.order_items.id is 'ID записи';
+comment on column market.order_items.order_id is 'ID заказа (orders.id)';
+comment on column market.order_items.item_id is 'ID товара (items.id)';
+comment on column market.order_items.count is 'Количество товаров в заказе';
+comment on column market.order_items.price is 'Цена товара на момент покупки';
+
+create index if not exists idx_order_items_order_id on market.order_items (order_id);
+create index if not exists idx_order_items_item_id on market.order_items (item_id);
