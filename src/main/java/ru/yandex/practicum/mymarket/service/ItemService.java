@@ -44,4 +44,8 @@ public class ItemService {
 
         return itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
     }
+
+    public void changeCount(String action, Long id) {
+        itemRepository.changeCount(action, id);
+    }
 }

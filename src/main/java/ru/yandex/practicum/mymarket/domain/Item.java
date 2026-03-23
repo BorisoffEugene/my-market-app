@@ -12,6 +12,7 @@ public class Item {
     private String description;
     private String imgPath;
     private Long price;
+    private int count;
 
     public Item() {
     }
@@ -58,5 +59,13 @@ public class Item {
 
     public void setPrice(Long price) {
         this.price = price;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

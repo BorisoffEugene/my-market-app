@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
@@ -61,5 +59,37 @@ public class ItemController {
         }
 
         return "redirect:/items";
+    }
+
+    @PostMapping
+    public String doItemsAction(
+            @RequestParam Long id,
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "NO") String sort,
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "5") int pageSize,
+            @RequestParam String action
+    ){
+        itemService.changeCount(action, id);
+
+        String redirectUrl = UriComponentsBuilder.fromPath("/items")
+                .queryParam("search", search)
+                .queryParam("sort", sort)
+                .queryParam("pageNumber", pageNumber)
+                .queryParam("pageSize", pageSize)
+                .toUriString();
+
+        return "redirect:" + redirectUrl;
+    }
+
+    @PostMapping("/{id}")
+    public String doItemAction(@PathVariable Long id, @RequestParam String action) {
+        itemService.changeCount(action, id);
+
+        String redirectUrl = UriComponentsBuilder.fromPath("/items/{id}")
+                .buildAndExpand(id)
+                .toUriString();
+
+        return "redirect:" + redirectUrl;
     }
 }
