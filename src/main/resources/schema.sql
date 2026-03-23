@@ -36,7 +36,7 @@ comment on column market.orders.total_sum is 'Суммарная стоимос�
 create table if not exists market.order_items(
 	id bigserial primary key,
 	order_id bigint not null references market.orders(id) on delete cascade,
-	item_id bigint not null references market.items(id) on delete cascade,
+	title varchar not null,
 	count int not null check(count > 0),
 	price bigint not null check(price > 0)
 );
@@ -44,9 +44,8 @@ create table if not exists market.order_items(
 comment on table market.order_items is 'Состав заказа';
 comment on column market.order_items.id is 'ID записи';
 comment on column market.order_items.order_id is 'ID заказа (orders.id)';
-comment on column market.order_items.item_id is 'ID товара (items.id)';
+comment on column market.order_items.title is 'Название товара в заказе';
 comment on column market.order_items.count is 'Количество товаров в заказе';
 comment on column market.order_items.price is 'Цена товара на момент покупки';
 
 create index if not exists idx_order_items_order_id on market.order_items (order_id);
-create index if not exists idx_order_items_item_id on market.order_items (item_id);
