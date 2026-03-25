@@ -30,8 +30,8 @@ public class ItemServiceTest {
     @DisplayName("Получение списка товаров (товары есть)")
     void testFindAll_Success() {
         List<Item> mockItems = List.of(
-                new Item(1L, "Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
-                new Item(2L, "Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
+                new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
+                new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
         );
 
         when(itemRepository.findAll(Sort.by("id"))).thenReturn(mockItems);
@@ -39,8 +39,6 @@ public class ItemServiceTest {
 
         assertNotNull(items, "Товары должены существовать");
         assertEquals(2, items.size(), "Количество товаров должно быть 2");
-
-        assertEquals(1L, items.getFirst().getId(), String.format("ID должен быть: %d", 1L));
         assertEquals("Название 1", items.getFirst().getTitle(), String.format("Название должно быть: %s", "Название 1"));
         assertEquals("Описание 1", items.getFirst().getDescription(), String.format("Описание должно быть: %s", "Описание 1"));
         assertEquals("/images/1.jpg", items.getFirst().getImgPath(), String.format("Путь к изображению должен быть: %s", "/images/1.jpg"));
@@ -62,12 +60,11 @@ public class ItemServiceTest {
     @Test
     @DisplayName("Сохранение товара")
     void testSave() {
-        Item mockItem = new Item(1L, "Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
+        Item mockItem = new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
         when(itemRepository.save(mockItem)).thenReturn(mockItem);
         Item item = itemRepository.save(mockItem);
 
         assertNotNull(item, "Товар должен существовать");
-        assertEquals(1L, item.getId(), String.format("ID должен быть: %d", 1L));
         assertEquals("Название 1", item.getTitle(), String.format("Название должно быть: %s", "Название 1"));
         assertEquals("Описание 1", item.getDescription(), String.format("Описание должно быть: %s", "Описание 1"));
         assertEquals("/images/1.jpg", item.getImgPath(), String.format("Путь к изображению должен быть: %s", "/images/1.jpg"));
@@ -88,7 +85,7 @@ public class ItemServiceTest {
     @DisplayName("Получение товара (товар есть)")
     void testFindById_Success() {
         Long id = 1L;
-        Item mockItem = new Item(1L, "Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
+        Item mockItem = new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
 
         when(itemRepository.findById(id)).thenReturn(Optional.of(mockItem));
         Optional<Item> optionalItem = itemRepository.findById(id);
@@ -96,7 +93,6 @@ public class ItemServiceTest {
 
         Item item = optionalItem.get();
 
-        assertEquals(1L, item.getId(), String.format("ID должен быть: %d", 1L));
         assertEquals("Название 1", item.getTitle(), String.format("Название должно быть: %s", "Название 1"));
         assertEquals("Описание 1", item.getDescription(), String.format("Описание должно быть: %s", "Описание 1"));
         assertEquals("/images/1.jpg", item.getImgPath(), String.format("Путь к изображению должен быть: %s", "/images/1.jpg"));
@@ -128,8 +124,8 @@ public class ItemServiceTest {
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
         Page<Item> mockItem = new PageImpl<>(
                 List.of(
-                        new Item(1L, "Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
-                        new Item(2L, "Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
+                        new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
+                        new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
                 ),
                 pageable,
                 2);
@@ -143,7 +139,6 @@ public class ItemServiceTest {
         assertFalse(item.hasPrevious(), "Предыдущей страницы не должно быть");
         assertTrue(item.hasContent(), "Товары должены существовать");
         assertEquals(2, item.getContent().size(), "Количество товаров должно быть 2");
-        assertEquals(1L, item.getContent().getFirst().getId(), String.format("ID должен быть: %d", 1L));
         assertEquals("Название 1", item.getContent().getFirst().getTitle(), String.format("Название должно быть: %s", "Название 1"));
         assertEquals("Описание 1", item.getContent().getFirst().getDescription(), String.format("Описание должно быть: %s", "Описание 1"));
         assertEquals("/images/1.jpg", item.getContent().getFirst().getImgPath(), String.format("Путь к изображению должен быть: %s", "/images/1.jpg"));

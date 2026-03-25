@@ -28,8 +28,8 @@ public class CartServiceTest {
     @DisplayName("Получение списка товаров в корзине (товары есть)")
     void testItems_Success() {
         List<Item> mockItems = List.of(
-                new Item(1L, "Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
-                new Item(2L, "Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
+                new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
+                new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
         );
 
         when(itemRepository.findByCountGreaterThan(0)).thenReturn(mockItems);
@@ -37,8 +37,6 @@ public class CartServiceTest {
 
         assertNotNull(items, "Товары должены существовать");
         assertEquals(2, items.size(), "Количество товаров должно быть 2");
-
-        assertEquals(1L, items.getFirst().getId(), String.format("ID должен быть: %d", 1L));
         assertEquals("Название 1", items.getFirst().getTitle(), String.format("Название должно быть: %s", "Название 1"));
         assertEquals("Описание 1", items.getFirst().getDescription(), String.format("Описание должно быть: %s", "Описание 1"));
         assertEquals("/images/1.jpg", items.getFirst().getImgPath(), String.format("Путь к изображению должен быть: %s", "/images/1.jpg"));

@@ -21,8 +21,7 @@ public class Item {
         this.id = id;
     }
 
-    public Item(Long id, String title, String description, String imgPath, Long price, int count) {
-        this.id = id;
+    public Item(String title, String description, String imgPath, Long price, int count) {
         this.title = title;
         this.description = description;
         this.imgPath = imgPath;
