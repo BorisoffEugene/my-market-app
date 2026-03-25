@@ -1,9 +1,6 @@
 package ru.yandex.practicum.mymarket.modular;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,8 +28,8 @@ public class CartServiceTest {
     @DisplayName("Получение списка товаров в корзине (товары есть)")
     void testItems_Success() {
         List<Item> mockItems = List.of(
-                new Item(1L, "Название 1", "Описание 1", "/images/1.jpg", 1000L, 1),
-                new Item(2L, "Название 2", "Описание 2", "/images/2.jpg", 2000L, 2)
+                new Item(1L, "Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
+                new Item(2L, "Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
         );
 
         when(itemRepository.findByCountGreaterThan(0)).thenReturn(mockItems);
@@ -45,7 +42,7 @@ public class CartServiceTest {
         assertEquals("Название 1", items.getFirst().getTitle(), String.format("Название должно быть: %s", "Название 1"));
         assertEquals("Описание 1", items.getFirst().getDescription(), String.format("Описание должно быть: %s", "Описание 1"));
         assertEquals("/images/1.jpg", items.getFirst().getImgPath(), String.format("Путь к изображению должен быть: %s", "/images/1.jpg"));
-        assertEquals(1000L, items.getFirst().getPrice(), String.format("Цена должна быть: %d", 1000L));
+        assertEquals(1_000L, items.getFirst().getPrice(), String.format("Цена должна быть: %d", 1_000L));
         assertEquals(1, items.getFirst().getCount(), String.format("Количество должно быть: %d", 1));
     }
 
@@ -81,7 +78,7 @@ public class CartServiceTest {
     }
 
     @Test
-    @DisplayName("Удаляем весь товар из корзины")
+    @DisplayName("Очистка корзины")
     void testClearCount() {
         doNothing().when(itemRepository).clearCount();
         itemRepository.clearCount();
@@ -89,7 +86,7 @@ public class CartServiceTest {
     }
 
     @Test
-    @DisplayName("Изменяем количество товара в корзине")
+    @DisplayName("Изменение количества товара в корзине")
     void testChangeCount() {
         doNothing().when(itemRepository).changeCount("PLUS", 1L);
         itemRepository.changeCount("PLUS", 1L);
