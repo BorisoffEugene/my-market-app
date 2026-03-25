@@ -151,7 +151,7 @@ public class ItemServiceTest {
     void testFindByFiltr_NotFound() {
         String search = "Несуществующее название";
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
-        Page<Item> mockItem = new PageImpl<>(List.of(), pageable, 2);
+        Page<Item> mockItem = new PageImpl<>(List.of(), pageable, 0);
 
         when(itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable)).thenReturn(mockItem);
         Page<Item> item = itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
