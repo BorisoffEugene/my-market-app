@@ -20,7 +20,7 @@ public class BuyController {
     private OrderService orderService;
 
     @PostMapping
-    public String findOrderById(Model model) {
+    public String buy(Model model) {
         boolean newOrder = true;
         List<Item> items = cartService.items();
         Long totalSum = cartService.total();
@@ -38,7 +38,6 @@ public class BuyController {
         String redirectUrl = UriComponentsBuilder.fromPath("/orders/{id}?newOrder={newOrder}")
                 .buildAndExpand(order.getId(), newOrder)
                 .toUriString();
-
         return "redirect:" + redirectUrl;
     }
 }
