@@ -1,0 +1,26 @@
+services:
+  db:
+    container_name: db
+    image: postgres:17.5
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    container_name: my-market-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: my-market-app
+    restart: on-failure
+    depends_on:
+      - db
+
+volumes:
+  db-data:
