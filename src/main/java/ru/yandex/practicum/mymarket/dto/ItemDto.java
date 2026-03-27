@@ -1,14 +1,6 @@
-package ru.yandex.practicum.mymarket.domain;
+package ru.yandex.practicum.mymarket.dto;
 
-import jakarta.persistence.*;
-
-import java.util.Objects;
-
-@Entity
-@Table(name = "items", schema = "market")
-public class Item {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ItemDto {
     private Long id;
     private String title;
     private String description;
@@ -16,14 +8,11 @@ public class Item {
     private Long price;
     private int count;
 
-    public Item() {
+    public ItemDto() {
     }
 
-    public Item(Long id) {
+    public ItemDto(Long id, String title, String description, String imgPath, Long price, int count) {
         this.id = id;
-    }
-
-    public Item(String title, String description, String imgPath, Long price, int count) {
         this.title = title;
         this.description = description;
         this.imgPath = imgPath;
@@ -31,8 +20,11 @@ public class Item {
         this.count = count;
     }
 
-    public Item(Long id, String title, String description, String imgPath, Long price, int count) {
+    public ItemDto(Long id) {
         this.id = id;
+    }
+
+    public ItemDto(String title, String description, String imgPath, Long price, int count) {
         this.title = title;
         this.description = description;
         this.imgPath = imgPath;
@@ -86,17 +78,5 @@ public class Item {
 
     public void setCount(int count) {
         this.count = count;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Item item = (Item) o;
-        return count == item.count && Objects.equals(id, item.id) && Objects.equals(title, item.title) && Objects.equals(description, item.description) && Objects.equals(imgPath, item.imgPath) && Objects.equals(price, item.price);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, title, description, imgPath, price, count);
     }
 }

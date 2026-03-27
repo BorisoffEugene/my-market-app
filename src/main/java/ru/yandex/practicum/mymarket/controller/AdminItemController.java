@@ -1,12 +1,11 @@
 package ru.yandex.practicum.mymarket.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yandex.practicum.mymarket.domain.Item;
+import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
 import java.io.IOException;
@@ -19,24 +18,27 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/admin-items")
 public class AdminItemController {
-    @Autowired
-    private ItemService itemService;
+    private final ItemService itemService;
+
+    public AdminItemController(ItemService itemService) {
+        this.itemService = itemService;
+    }
 
     @GetMapping
     public String findAll(Model model) {
-        List<Item> items = itemService.findAll(Sort.by("id"));
+        List<ItemDto> items = itemService.findAll(Sort.by("id"));
         model.addAttribute("items", items);
         return "admin-items";
     }
 
     @GetMapping("/add")
     public String add(Model model) {
-        model.addAttribute("item", new Item());
+        model.addAttribute("item", new ItemDto());
         return "admin-item";
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute("item") Item item, @RequestParam("imageFile") MultipartFile file) {
+    public String save(@ModelAttribute("item") ItemDto item, @RequestParam("imageFile") MultipartFile file) {
         if (!file.isEmpty()) {
             byte[] bytes = null;
             item.setImgPath("/images/" + file.getOriginalFilename());
@@ -61,7 +63,7 @@ public class AdminItemController {
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        Optional<Item> item = itemService.findById(id);
+        Optional<ItemDto> item = itemService.findById(id);
         if (item.isPresent()) {
             model.addAttribute("item", item.get());
             return "admin-item";

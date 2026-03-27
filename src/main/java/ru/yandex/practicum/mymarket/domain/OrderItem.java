@@ -2,6 +2,8 @@ package ru.yandex.practicum.mymarket.domain;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "order_items", schema = "market")
 public class OrderItem {
@@ -64,5 +66,17 @@ public class OrderItem {
 
     public void setPrice(Long price) {
         this.price = price;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderItem orderItem = (OrderItem) o;
+        return count == orderItem.count && Objects.equals(id, orderItem.id) && Objects.equals(order, orderItem.order) && Objects.equals(title, orderItem.title) && Objects.equals(price, orderItem.price);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, order, title, count, price);
     }
 }

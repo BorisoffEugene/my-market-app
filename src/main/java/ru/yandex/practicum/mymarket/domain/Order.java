@@ -3,6 +3,7 @@ package ru.yandex.practicum.mymarket.domain;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "orders", schema = "market")
@@ -20,6 +21,12 @@ public class Order {
     }
 
     public Order(List<OrderItem> items, Long totalSum) {
+        this.items = items;
+        this.totalSum = totalSum;
+    }
+
+    public Order(Long id, List<OrderItem> items, Long totalSum) {
+        this.id = id;
         this.items = items;
         this.totalSum = totalSum;
     }
@@ -46,5 +53,17 @@ public class Order {
 
     public void setTotalSum(Long totalSum) {
         this.totalSum = totalSum;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Order order = (Order) o;
+        return Objects.equals(id, order.id) && Objects.equals(items, order.items) && Objects.equals(totalSum, order.totalSum);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, items, totalSum);
     }
 }

@@ -1,12 +1,11 @@
 package ru.yandex.practicum.mymarket.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.yandex.practicum.mymarket.domain.Item;
+import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
 import java.util.ArrayList;
@@ -18,8 +17,11 @@ import java.util.stream.IntStream;
 @Controller
 @RequestMapping({"/items", "/"})
 public class ItemController {
-    @Autowired
-    private ItemService itemService;
+    private final ItemService itemService;
+
+    public ItemController(ItemService itemService) {
+        this.itemService = itemService;
+    }
 
     @GetMapping
     public String findByFiltr(
@@ -29,16 +31,16 @@ public class ItemController {
             @RequestParam(defaultValue = "5") int pageSize,
             Model model
     ){
-        Page<Item> paging = itemService.findByFiltr(search, sort, pageNumber, pageSize);
-        List<Item> content = new ArrayList<>(paging.getContent());
+        Page<ItemDto> paging = itemService.findByFiltr(search, sort, pageNumber, pageSize);
+        List<ItemDto> content = new ArrayList<>(paging.getContent());
 
         int colCount = 3;
         int mod = content.size() % colCount;
 
         for (int i = 1; i <= mod; i++)
-            content.add(new Item(-1L));
+            content.add(new ItemDto(-1L));
 
-        List<List<Item>> items = IntStream.range(0, (content.size() + colCount - 1) / colCount)
+        List<List<ItemDto>> items = IntStream.range(0, (content.size() + colCount - 1) / colCount)
                 .mapToObj(i -> content.subList(i * colCount, Math.min((i + 1) * colCount, content.size())))
                 .collect(Collectors.toList());
 
@@ -52,7 +54,7 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public String getItemById(@PathVariable Long id, Model model) {
-        Optional<Item> item = itemService.findById(id);
+        Optional<ItemDto> item = itemService.findById(id);
         if (item.isPresent()) {
             model.addAttribute("item", item.get());
             return "item";

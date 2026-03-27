@@ -1,9 +1,10 @@
 package ru.yandex.practicum.mymarket.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.mymarket.domain.Item;
+import ru.yandex.practicum.mymarket.dto.ItemDto;
+import ru.yandex.practicum.mymarket.mapper.ItemMapper;
 import ru.yandex.practicum.mymarket.repository.ItemRepository;
 
 import java.util.List;
@@ -11,14 +12,20 @@ import java.util.Optional;
 
 @Service
 public class ItemService {
-    @Autowired
-    private ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
+    private final ItemMapper itemMapper;
 
-    public List<Item> findAll(Sort sort) {
-        return itemRepository.findAll(sort);
+    public ItemService(ItemRepository itemRepository, ItemMapper itemMapper) {
+        this.itemRepository = itemRepository;
+        this.itemMapper = itemMapper;
     }
 
-    public void save(Item item) {
+    public List<ItemDto> findAll(Sort sort) {
+        return itemMapper.toDtoList(itemRepository.findAll(sort));
+    }
+
+    public void save(ItemDto itemDto) {
+        Item item = itemMapper.toEntity(itemDto);
         itemRepository.save(item);
     }
 
@@ -26,11 +33,11 @@ public class ItemService {
         itemRepository.deleteById(id);
     }
 
-    public Optional<Item> findById(Long id) {
-        return itemRepository.findById(id);
+    public Optional<ItemDto> findById(Long id) {
+        return Optional.of(itemMapper.toDto(itemRepository.findById(id).get()));
     }
 
-    public Page<Item> findByFiltr(String search, String sortType, int pageNumber, int pageSize) {
+    public Page<ItemDto> findByFiltr(String search, String sortType, int pageNumber, int pageSize) {
         Sort sort = switch (sortType) {
             case "ALPHA" -> Sort.by("title");
             case "PRICE" -> Sort.by("price");
@@ -39,7 +46,8 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        return itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
+        Page<Item> itemPage = itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
+        return itemPage.map(itemMapper::toDto);
     }
 
     public void changeCount(String action, Long id) {

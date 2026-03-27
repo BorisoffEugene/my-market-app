@@ -8,6 +8,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.mymarket.controller.ItemController;
 import ru.yandex.practicum.mymarket.domain.Item;
+import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
 import java.util.List;
@@ -33,10 +34,10 @@ public class ItemControllerTest {
         int pageNumber = 0;
         int pageSize = 5;
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.unsorted());
-        Page<Item> paging = new PageImpl<>(
+        Page<ItemDto> paging = new PageImpl<>(
                 List.of(
-                        new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
-                        new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
+                        new ItemDto("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
+                        new ItemDto("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
                 ),
                 pageable,
                 2);
@@ -71,7 +72,7 @@ public class ItemControllerTest {
     @DisplayName("Получение товара (товар есть)")
     void testFindById_Success() throws Exception {
         Long id = 1L;
-        Item item = new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
+        ItemDto item = new ItemDto("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
         item.setId(id);
         doReturn(Optional.of(item)).when(itemService).findById(id);
 

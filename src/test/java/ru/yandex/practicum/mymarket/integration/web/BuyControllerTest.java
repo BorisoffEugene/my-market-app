@@ -6,8 +6,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.mymarket.controller.BuyController;
-import ru.yandex.practicum.mymarket.domain.Order;
 import ru.yandex.practicum.mymarket.domain.OrderItem;
+import ru.yandex.practicum.mymarket.dto.OrderDto;
 import ru.yandex.practicum.mymarket.service.*;
 
 import java.util.List;
@@ -32,9 +32,9 @@ public class BuyControllerTest {
     @Test
     @DisplayName("Покупка")
     void testBy() throws Exception {
-        Order order = new Order(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L);
+        OrderDto order = new OrderDto(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L);
         order.setId(1L);
-        doReturn(order).when(orderService).save(any(Order.class));
+        doReturn(order).when(orderService).save(any(OrderDto.class));
 
         mockMvc.perform(post("/buy"))
                 .andExpect(status().is3xxRedirection())
