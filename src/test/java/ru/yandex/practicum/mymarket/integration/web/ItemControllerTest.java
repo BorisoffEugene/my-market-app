@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.mymarket.controller.ItemController;
 import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
+import ru.yandex.practicum.mymarket.service.CartService;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
 import java.util.List;
@@ -25,6 +26,9 @@ public class ItemControllerTest {
 
     @MockitoBean
     private ItemService itemService;
+
+    @MockitoBean
+    private CartService cartService;
 
     @Test
     @DisplayName("Получение списка товаров + поиск + пагинация (товары есть)")
@@ -103,7 +107,7 @@ public class ItemControllerTest {
         String action = "PLUS";
         Long id = 1L;
 
-        doNothing().when(itemService).changeCount(action, id);
+        doNothing().when(cartService).changeCount(action, id);
 
         mockMvc.perform(post("/items?id={id}&search={search}&sort={sort}&pageNumber={pageNumber}&pageSize={pageSize}&action={action}", id, search, sort, pageNumber, pageSize, action))
                 .andExpect(status().is3xxRedirection())
@@ -116,7 +120,7 @@ public class ItemControllerTest {
         String action = "PLUS";
         Long id = 1L;
 
-        doNothing().when(itemService).changeCount(action, id);
+        doNothing().when(cartService).changeCount(action, id);
 
         mockMvc.perform(post("/items/{id}?action={action}", id, action))
                 .andExpect(status().is3xxRedirection())

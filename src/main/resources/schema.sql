@@ -49,3 +49,34 @@ comment on column market.order_items.count is 'Количество товаро
 comment on column market.order_items.price is 'Цена товара на момент покупки';
 
 create index if not exists idx_order_items_order_id on market.order_items (order_id);
+
+-- таблица cart
+create table if not exists market.cart(
+	id bigserial primary key,
+	status varchar not null default 'CURRENT',
+	total bigint not null default 0 check(total >= 0)
+);
+
+comment on table market.cart is 'Заказы';
+comment on column market.cart.id is 'ID записи';
+comment on column market.cart.status is 'Статус корзины (CURRENT, DELETED, SOLD)';
+comment on column market.cart.total is 'Суммарная цена товаров в корзине';
+
+create index if not exists idx_cart_status on market.cart (status);
+
+-- таблица cart_items
+create table if not exists market.cart_items(
+	id bigserial primary key,
+	cart_id bigint not null references market.cart(id) on delete cascade,
+	item_id bigint not null unique references market.items(id) on delete cascade,
+	count int not null default 1 check(count > 0)
+);
+
+comment on table market.cart_items is 'Список товаров в корзине';
+comment on column market.cart_items.id is 'ID записи';
+comment on column market.cart_items.cart_id is 'ID корзины (cart.id)';
+comment on column market.cart_items.item_id is 'ID товара (items.id)';
+comment on column market.cart_items.count is 'Количество товаров в корзине';
+
+create index if not exists idx_cart_items_cart_id on market.cart_items (cart_id);
+create index if not exists idx_cart_items_item_id on market.cart_items (item_id);

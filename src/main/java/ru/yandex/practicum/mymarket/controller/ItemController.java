@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
+import ru.yandex.practicum.mymarket.service.CartService;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
 import java.util.ArrayList;
@@ -18,9 +19,11 @@ import java.util.stream.IntStream;
 @RequestMapping({"/items", "/"})
 public class ItemController {
     private final ItemService itemService;
+    private final CartService cartService;
 
-    public ItemController(ItemService itemService) {
+    public ItemController(ItemService itemService, CartService cartService) {
         this.itemService = itemService;
+        this.cartService = cartService;
     }
 
     @GetMapping
@@ -72,7 +75,7 @@ public class ItemController {
             @RequestParam(defaultValue = "5") int pageSize,
             @RequestParam String action
     ){
-        itemService.changeCount(action, id);
+        cartService.changeCount(action, id);
 
         String redirectUrl = UriComponentsBuilder.fromPath("/items")
                 .queryParam("search", search)
@@ -86,7 +89,7 @@ public class ItemController {
 
     @PostMapping("/{id}")
     public String doItemAction(@PathVariable Long id, @RequestParam String action) {
-        itemService.changeCount(action, id);
+        cartService.changeCount(action, id);
 
         String redirectUrl = UriComponentsBuilder.fromPath("/items/{id}")
                 .buildAndExpand(id)

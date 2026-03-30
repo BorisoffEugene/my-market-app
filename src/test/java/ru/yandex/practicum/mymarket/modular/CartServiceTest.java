@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.yandex.practicum.mymarket.domain.Item;
-import ru.yandex.practicum.mymarket.repository.ItemRepository;
+import ru.yandex.practicum.mymarket.repository.CartItemRepository;
+import ru.yandex.practicum.mymarket.repository.CartRepository;
 import ru.yandex.practicum.mymarket.service.CartService;
 
 import java.util.ArrayList;
@@ -22,7 +23,10 @@ public class CartServiceTest {
     private CartService cartService;
 
     @MockitoBean
-    private ItemRepository itemRepository;
+    private CartItemRepository cartItemRepository;
+
+    @MockitoBean
+    private CartRepository cartRepository;
 
     @Test
     @DisplayName("Получение списка товаров в корзине (товары есть)")
@@ -32,8 +36,8 @@ public class CartServiceTest {
                 new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
         );
 
-        when(itemRepository.findByCountGreaterThan(0)).thenReturn(mockItems);
-        List<Item> items = itemRepository.findByCountGreaterThan(0);
+        when(cartItemRepository.findCartItems()).thenReturn(mockItems);
+        List<Item> items = cartItemRepository.findCartItems();
 
         assertNotNull(items, "Товары должены существовать");
         assertEquals(2, items.size(), "Количество товаров должно быть 2");
@@ -49,8 +53,8 @@ public class CartServiceTest {
     void testItems_NotFound() {
         List<Item> mockItems = new ArrayList<>();
 
-        when(itemRepository.findByCountGreaterThan(0)).thenReturn(mockItems);
-        List<Item> items = itemRepository.findByCountGreaterThan(0);
+        when(cartItemRepository.findCartItems()).thenReturn(mockItems);
+        List<Item> items = cartItemRepository.findCartItems();
 
         assertEquals(0, items.size(), "Количество товаров должно быть 0");
     }
@@ -59,8 +63,8 @@ public class CartServiceTest {
     @DisplayName("Получение сумарной цены товаров в корзине (товары есть)")
     void testTotal_Success() {
         Long mockTotal = 1500L;
-        when(itemRepository.sumPriceByCountGreaterThan(0)).thenReturn(mockTotal);
-        Long total = itemRepository.sumPriceByCountGreaterThan(0);
+        when(cartRepository.cartTotal()).thenReturn(mockTotal);
+        Long total = cartRepository.cartTotal();
 
         assertEquals(mockTotal, total, String.format("Суммарная цена должна быть %d", mockTotal));
     }
@@ -69,25 +73,17 @@ public class CartServiceTest {
     @DisplayName("Получение сумарной цены товаров в корзине (товаров нет)")
     void testTotal_NotFound() {
         Long mockTotal = 0L;
-        when(itemRepository.sumPriceByCountGreaterThan(0)).thenReturn(mockTotal);
-        Long total = itemRepository.sumPriceByCountGreaterThan(0);
+        when(cartRepository.cartTotal()).thenReturn(mockTotal);
+        Long total = cartRepository.cartTotal();
 
         assertEquals(mockTotal, total, String.format("Суммарная цена должна быть %d", mockTotal));
     }
 
     @Test
-    @DisplayName("Очистка корзины")
-    void testClearCount() {
-        doNothing().when(itemRepository).clearCount();
-        itemRepository.clearCount();
-        verify(itemRepository, times(1)).clearCount();
-    }
-
-    @Test
-    @DisplayName("Изменение количества товара в корзине")
-    void testChangeCount() {
-        doNothing().when(itemRepository).changeCount("PLUS", 1L);
-        itemRepository.changeCount("PLUS", 1L);
-        verify(itemRepository, times(1)).changeCount("PLUS", 1L);
+    @DisplayName("Продано")
+    void testSold() {
+        doNothing().when(cartRepository).sold();
+        cartRepository.sold();
+        verify(cartRepository, times(1)).sold();
     }
 }

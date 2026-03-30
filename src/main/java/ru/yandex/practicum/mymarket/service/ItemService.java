@@ -46,11 +46,7 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        Page<Item> itemPage = itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
+        Page<Item> itemPage = itemRepository.findByFiltr(search, pageable);
         return itemPage.map(itemMapper::toDto);
-    }
-
-    public void changeCount(String action, Long id) {
-        itemRepository.changeCount(action, id);
     }
 }

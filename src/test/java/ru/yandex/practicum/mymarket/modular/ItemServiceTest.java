@@ -110,14 +110,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    @DisplayName("Изменение количества товара")
-    void testChangeCount() {
-        doNothing().when(itemRepository).changeCount("PLUS", 1L);
-        itemRepository.changeCount("PLUS", 1L);
-        verify(itemRepository, times(1)).changeCount("PLUS", 1L);
-    }
-
-    @Test
     @DisplayName("Получение списка товаров + поиск + пагинация (товары есть)")
     void testFindByFiltr_Success() {
         String search = "Название";
@@ -130,8 +122,8 @@ public class ItemServiceTest {
                 pageable,
                 2);
 
-        when(itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable)).thenReturn(mockItem);
-        Page<Item> item = itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
+        when(itemRepository.findByFiltr(search, pageable)).thenReturn(mockItem);
+        Page<Item> item = itemRepository.findByFiltr(search, pageable);
 
         assertEquals(0, item.getNumber(), "Номер текущей страницы должен быть 0");
         assertEquals(5, item.getSize(), "Количество товаров на странице должно быть 5");
@@ -153,8 +145,8 @@ public class ItemServiceTest {
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
         Page<Item> mockItem = new PageImpl<>(List.of(), pageable, 0);
 
-        when(itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable)).thenReturn(mockItem);
-        Page<Item> item = itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
+        when(itemRepository.findByFiltr(search, pageable)).thenReturn(mockItem);
+        Page<Item> item = itemRepository.findByFiltr(search, pageable);
 
         assertEquals(0, item.getNumber(), "Номер текущей страницы должен быть 0");
         assertEquals(5, item.getSize(), "Количество товаров на странице должно быть 5");

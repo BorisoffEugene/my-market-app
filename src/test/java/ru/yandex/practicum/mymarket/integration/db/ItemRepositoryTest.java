@@ -101,22 +101,12 @@ public class ItemRepositoryTest {
     }
 
     @Test
-    @DisplayName("Изменение количества товара")
-    void testChangeCount() {
-        itemRepository.changeCount("PLUS", item1.getId());
-        Optional<Item> optionalItem = itemRepository.findById(item1.getId());
-        assertTrue(optionalItem.isPresent(), "Товар должен существовать");
-        Item item = optionalItem.get();
-        assertEquals(1, item.getCount(), "Количество товара в корзине должно быть: 1");
-    }
-
-    @Test
     @DisplayName("Получение списка товаров + поиск + пагинация (товары есть)")
     void testFindByFiltr_Success() {
         String search = "Название";
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
 
-        Page<Item> item = itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
+        Page<Item> item = itemRepository.findByFiltr(search, pageable);
 
         assertEquals(0, item.getNumber(), "Номер текущей страницы должен быть 0");
         assertEquals(5, item.getSize(), "Количество товаров на странице должно быть 5");
@@ -137,7 +127,7 @@ public class ItemRepositoryTest {
         String search = "Несуществующее название";
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
 
-        Page<Item> item = itemRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
+        Page<Item> item = itemRepository.findByFiltr(search, pageable);
 
         assertEquals(0, item.getNumber(), "Номер текущей страницы должен быть 0");
         assertEquals(5, item.getSize(), "Количество товаров на странице должно быть 5");

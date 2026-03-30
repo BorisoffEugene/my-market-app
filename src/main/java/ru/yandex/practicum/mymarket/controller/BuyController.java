@@ -34,7 +34,7 @@ public class BuyController {
             orderItems.add(new OrderItem(item.getTitle(), item.getCount(), item.getPrice()));
 
         OrderDto order = orderService.save(new OrderDto(orderItems, totalSum));
-        cartService.clearCount();
+        cartService.sold();
 
         model.addAttribute("newOrder", newOrder);
         model.addAttribute("order", order);
