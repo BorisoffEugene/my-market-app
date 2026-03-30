@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: my-market-app
+  sql:
+    init:
+      mode: always
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
