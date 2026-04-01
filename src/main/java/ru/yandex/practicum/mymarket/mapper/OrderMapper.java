@@ -18,16 +18,4 @@ public class OrderMapper {
     public Order toEntity(OrderDto orderDto) {
         return new Order(orderDto.getId(), orderDto.getItems(), orderDto.getTotalSum());
     }
-
-    public List<OrderDto> toDtoList(List<Order> orders) {
-        return orders.stream()
-                .map(this::toDto)
-                .toList();
-    }
-
-    public List<Order> toEntityList(List<OrderDto> ordersDto) {
-        return ordersDto.stream()
-                .map(this::toEntity)
-                .toList();
-    }
 }

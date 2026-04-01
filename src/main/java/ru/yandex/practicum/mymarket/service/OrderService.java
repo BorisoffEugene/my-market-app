@@ -1,14 +1,11 @@
 package ru.yandex.practicum.mymarket.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.mymarket.domain.Order;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.dto.OrderDto;
 import ru.yandex.practicum.mymarket.mapper.OrderMapper;
 import ru.yandex.practicum.mymarket.repository.OrderRepository;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -20,18 +17,16 @@ public class OrderService {
         this.orderMapper = orderMapper;
     }
 
-    public List<OrderDto> findAll() {
-        return orderMapper.toDtoList(orderRepository.findAll());
+    public Flux<OrderDto> findAll() {
+        return orderRepository.findAll().map(orderMapper::toDto);
     }
 
-    public Optional<OrderDto> findById(Long id) {
-        return Optional.of(orderMapper.toDto(orderRepository.findById(id).get()));
+    public Mono<OrderDto> findById(Long id) {
+        return orderRepository.findById(id).map(orderMapper::toDto);
     }
 
-    @Transactional
-    public OrderDto save(OrderDto orderDto) {
-        Order order = orderMapper.toEntity(orderDto);
-        order.getItems().forEach(item -> item.setOrder(order));
-        return orderMapper.toDto(orderRepository.save(order));
+    public Mono<OrderDto> save(OrderDto orderDto) {
+        // todo хз что с itemsами в корзине?
+        return orderRepository.save(orderMapper.toEntity(orderDto)).map(orderMapper::toDto);
     }
 }

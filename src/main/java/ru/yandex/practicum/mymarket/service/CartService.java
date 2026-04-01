@@ -2,6 +2,8 @@ package ru.yandex.practicum.mymarket.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.domain.Cart;
 import ru.yandex.practicum.mymarket.domain.CartItem;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
@@ -9,7 +11,6 @@ import ru.yandex.practicum.mymarket.mapper.ItemMapper;
 import ru.yandex.practicum.mymarket.repository.CartItemRepository;
 import ru.yandex.practicum.mymarket.repository.CartRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,15 +25,15 @@ public class CartService {
         this.itemMapper = itemMapper;
     }
 
-    public List<ItemDto> items() {
-        return itemMapper.toDtoList(cartItemRepository.findCartItems());
+    public Flux<ItemDto> items() {
+        return cartItemRepository.findCartItems().map(itemMapper::toDto);
     }
 
-    public Long total() {
+    public Mono<Long> total() {
         return cartRepository.cartTotal();
     }
 
-    @Transactional
+    // todo
     public void changeCount(String action, Long id) {
         Optional<Cart> optionalCart = cartRepository.findFirstByStatus("CURRENT");
         Cart cart = optionalCart.orElseGet(() -> cartRepository.save(new Cart()));

@@ -2,13 +2,11 @@ package ru.yandex.practicum.mymarket.service;
 
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.mymarket.domain.Item;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.mapper.ItemMapper;
 import ru.yandex.practicum.mymarket.repository.ItemRepository;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ItemService {
@@ -20,24 +18,23 @@ public class ItemService {
         this.itemMapper = itemMapper;
     }
 
-    public List<ItemDto> findAll(Sort sort) {
-        return itemMapper.toDtoList(itemRepository.findAll(sort));
+    public Flux<ItemDto> findAll() {
+        return itemRepository.findAll().map(itemMapper::toDto);
     }
 
     public void save(ItemDto itemDto) {
-        Item item = itemMapper.toEntity(itemDto);
-        itemRepository.save(item);
+        itemRepository.save(itemMapper.toEntity(itemDto));
     }
 
     public void deleteById(Long id) {
         itemRepository.deleteById(id);
     }
 
-    public Optional<ItemDto> findById(Long id) {
-        return Optional.of(itemMapper.toDto(itemRepository.findById(id).get()));
+    public Mono<ItemDto> findById(Long id) {
+        return itemRepository.findById(id).map(itemMapper::toDto);
     }
 
-    public Page<ItemDto> findByFiltr(String search, String sortType, int pageNumber, int pageSize) {
+    public Flux<ItemDto> findByFiltr(String search, String sortType, int pageNumber, int pageSize) {
         Sort sort = switch (sortType) {
             case "ALPHA" -> Sort.by("title");
             case "PRICE" -> Sort.by("price");
@@ -46,7 +43,6 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        Page<Item> itemPage = itemRepository.findByFiltr(search, pageable);
-        return itemPage.map(itemMapper::toDto);
+        return itemRepository.findByFiltr(search, pageable).map(itemMapper::toDto);
     }
 }
