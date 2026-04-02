@@ -22,12 +22,12 @@ public class ItemService {
         return itemRepository.findAll().map(itemMapper::toDto);
     }
 
-    public void save(ItemDto itemDto) {
-        itemRepository.save(itemMapper.toEntity(itemDto));
+    public Mono<ItemDto> save(ItemDto itemDto) {
+        return itemRepository.save(itemMapper.toEntity(itemDto)).map(itemMapper::toDto);
     }
 
-    public void deleteById(Long id) {
-        itemRepository.deleteById(id);
+    public Mono<Void> deleteById(Long id) {
+        return itemRepository.deleteById(id);
     }
 
     public Mono<ItemDto> findById(Long id) {

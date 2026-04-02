@@ -17,7 +17,7 @@ public class OrderController {
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
-
+/* todo
     @GetMapping
     public String findAll(Model model) {
         List<OrderDto> orders = orderService.findAll();
@@ -36,4 +36,6 @@ public class OrderController {
 
         return "redirect:/orders";
     }
+
+ */
 }

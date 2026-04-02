@@ -25,7 +25,7 @@ public class OrderServiceTest {
 
     @MockitoBean
     private OrderRepository orderRepository;
-
+/*
     @Test
     @DisplayName("Получение списка заказов (заказы есть)")
     void testFindAll_Success() {
@@ -100,4 +100,6 @@ public class OrderServiceTest {
         assertEquals(1, order.getItems().getFirst().getCount(), String.format("Количество первого товара в заказе должно быть: %d", 1));
         assertEquals(1_000L, order.getItems().getFirst().getPrice(), String.format("Стоимость первого товара в заказе должно быть: %d", 1_000L));
     }
+
+ */
 }

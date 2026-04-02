@@ -25,7 +25,7 @@ public class ItemController {
         this.itemService = itemService;
         this.cartService = cartService;
     }
-
+/* todo
     @GetMapping
     public String findByFiltr(
             @RequestParam(defaultValue = "") String search,
@@ -97,4 +97,6 @@ public class ItemController {
 
         return "redirect:" + redirectUrl;
     }
+
+ */
 }

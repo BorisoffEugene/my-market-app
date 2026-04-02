@@ -23,6 +23,7 @@ public class BuyController {
         this.orderService = orderService;
     }
 
+    /* todo
     @PostMapping
     public String buy(Model model) {
         boolean newOrder = true;
@@ -44,4 +45,6 @@ public class BuyController {
                 .toUriString();
         return "redirect:" + redirectUrl;
     }
+
+     */
 }

@@ -34,6 +34,7 @@ public class CartService {
     }
 
     // todo
+    /*
     public void changeCount(String action, Long id) {
         Optional<Cart> optionalCart = cartRepository.findFirstByStatus("CURRENT");
         Cart cart = optionalCart.orElseGet(() -> cartRepository.save(new Cart()));
@@ -72,7 +73,7 @@ public class CartService {
         cart.setTotal(total());
         cartRepository.save(cart);
     }
-
+*/
     public void sold() {
         cartRepository.sold();
     }

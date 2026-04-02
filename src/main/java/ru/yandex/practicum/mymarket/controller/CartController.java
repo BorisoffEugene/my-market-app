@@ -17,6 +17,7 @@ public class CartController {
         this.cartService = cartService;
     }
 
+    /* todo
     @GetMapping
     public String items(Model model) {
         List<ItemDto> items = cartService.items();
@@ -34,4 +35,6 @@ public class CartController {
 
         return "redirect:/cart/items";
     }
+
+     */
 }

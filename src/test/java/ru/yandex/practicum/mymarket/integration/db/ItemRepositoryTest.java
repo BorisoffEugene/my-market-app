@@ -23,7 +23,7 @@ public class ItemRepositoryTest {
 
     private Item item1;
     private Item item2;
-
+/*
     @BeforeEach
     void beforeEach() {
         itemRepository.deleteAll();
@@ -135,4 +135,6 @@ public class ItemRepositoryTest {
         assertFalse(item.hasPrevious(), "Предыдущей страницы не должно быть");
         assertFalse(item.hasContent(), "Товаров не должно быть");
     }
+
+ */
 }

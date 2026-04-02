@@ -1,10 +1,13 @@
 package ru.yandex.practicum.mymarket.controller;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.result.view.Rendering;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
@@ -12,8 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin-items")
@@ -25,21 +26,26 @@ public class AdminItemController {
     }
 
     @GetMapping
-    public String findAll(Model model) {
-        List<ItemDto> items = itemService.findAll(Sort.by("id"));
-        model.addAttribute("items", items);
-        return "admin-items";
+    public Mono<Rendering> findAll() {
+        return Mono.just(
+                Rendering.view("admin-items")
+                        .modelAttribute("items", itemService.findAll())
+                        .build()
+        );
     }
 
     @GetMapping("/add")
-    public String add(Model model) {
-        model.addAttribute("item", new ItemDto());
-        return "admin-item";
+    public Mono<Rendering> add(Model model) {
+        return Mono.just(
+                Rendering.view("admin-item")
+                        .modelAttribute("item", new ItemDto())
+                        .build()
+        );
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute("item") ItemDto item, @RequestParam("imageFile") MultipartFile file) {
-        if (!file.isEmpty()) {
+    public Mono<String> save(@ModelAttribute("item") ItemDto item, @RequestPart("imageFile") FilePart file) {
+        /*if (!file.isEmpty()) {
             byte[] bytes = null;
             item.setImgPath("/images/" + file.getOriginalFilename());
             try {
@@ -49,26 +55,22 @@ public class AdminItemController {
 
             } catch (IOException ignored) {
             }
-        }
+        }* todo itemService.savePhoto/
 
-        itemService.save(item);
-        return "redirect:/admin-items";
+        return itemService.save(item).map(saved -> "redirect:/admin-items");
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        itemService.deleteById(id);
-        return "redirect:/admin-items";
+    public Mono<String> delete(@PathVariable Long id) {
+        return itemService.deleteById(id).thenReturn("redirect:/admin-items");
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
-        Optional<ItemDto> item = itemService.findById(id);
-        if (item.isPresent()) {
-            model.addAttribute("item", item.get());
-            return "admin-item";
-        }
-
-        return "redirect:/admin-items";
+    public Mono<Rendering> edit(@PathVariable Long id, Model model) {
+        return itemService.findById(id)
+                .map(i -> Rendering.view("admin-item")
+                        .modelAttribute("item", i)
+                        .build())
+                .switchIfEmpty(Mono.just(Rendering.redirectTo("/admin-items").build()));
     }
 }
