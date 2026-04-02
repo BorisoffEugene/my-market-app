@@ -10,6 +10,7 @@ import ru.yandex.practicum.mymarket.domain.Item;
 
 public interface CartItemRepository extends ReactiveCrudRepository<CartItem, Long> {
     Mono<CartItem> findByItemId(Long itemId);
+
     @Query("""
                     select
                         i.id, i.title, i.description, i.img_path, i.price, ci.count

@@ -1,11 +1,11 @@
 package ru.yandex.practicum.mymarket.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.CartService;
@@ -13,7 +13,6 @@ import ru.yandex.practicum.mymarket.service.ItemService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -66,9 +65,9 @@ public class ItemController {
                         .build())
                 .switchIfEmpty(Mono.just(Rendering.redirectTo("/items").build()));
     }
-/* todo
+
     @PostMapping
-    public String doItemsAction(
+    public Mono<String> doItemsAction(
             @RequestParam Long id,
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "NO") String sort,
@@ -76,8 +75,6 @@ public class ItemController {
             @RequestParam(defaultValue = "5") int pageSize,
             @RequestParam String action
     ){
-        cartService.changeCount(action, id);
-
         String redirectUrl = UriComponentsBuilder.fromPath("/items")
                 .queryParam("search", search)
                 .queryParam("sort", sort)
@@ -85,19 +82,11 @@ public class ItemController {
                 .queryParam("pageSize", pageSize)
                 .toUriString();
 
-        return "redirect:" + redirectUrl;
+        return cartService.changeCount(action, id).thenReturn("redirect:" + redirectUrl);
     }
 
     @PostMapping("/{id}")
-    public String doItemAction(@PathVariable Long id, @RequestParam String action) {
-        cartService.changeCount(action, id);
-
-        String redirectUrl = UriComponentsBuilder.fromPath("/items/{id}")
-                .buildAndExpand(id)
-                .toUriString();
-
-        return "redirect:" + redirectUrl;
+    public Mono<String> doItemAction(@PathVariable Long id, @RequestParam String action) {
+        return cartService.changeCount(action, id).thenReturn("redirect:/items/" + id);
     }
-
- */
 }

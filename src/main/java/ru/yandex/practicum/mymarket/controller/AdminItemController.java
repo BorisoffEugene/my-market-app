@@ -3,7 +3,6 @@ package ru.yandex.practicum.mymarket.controller;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
@@ -34,7 +33,7 @@ public class AdminItemController {
     }
 
     @GetMapping("/add")
-    public Mono<Rendering> add(Model model) {
+    public Mono<Rendering> add() {
         return Mono.just(
                 Rendering.view("admin-item")
                         .modelAttribute("item", new ItemDto())
@@ -69,7 +68,7 @@ public class AdminItemController {
     }
 
     @GetMapping("/edit/{id}")
-    public Mono<Rendering> edit(@PathVariable Long id, Model model) {
+    public Mono<Rendering> edit(@PathVariable Long id) {
         return itemService.findById(id)
                 .map(i -> Rendering.view("admin-item")
                         .modelAttribute("item", i)
