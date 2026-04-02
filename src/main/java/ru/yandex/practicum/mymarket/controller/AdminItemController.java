@@ -1,11 +1,10 @@
 package ru.yandex.practicum.mymarket.controller;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
@@ -45,19 +44,23 @@ public class AdminItemController {
 
     @PostMapping("/save")
     public Mono<String> save(@ModelAttribute("item") ItemDto item, @RequestPart("imageFile") FilePart file) {
-        /*if (!file.isEmpty()) {
-            byte[] bytes = null;
-            item.setImgPath("/images/" + file.getOriginalFilename());
-            try {
-                bytes = file.getBytes();
-                Path path = Paths.get("src/main/resources/static" + item.getImgPath());
-                Files.write(path, bytes);
-
-            } catch (IOException ignored) {
-            }
-        }* todo itemService.savePhoto/
-
-        return itemService.save(item).map(saved -> "redirect:/admin-items");
+        return DataBufferUtils.join(file.content())
+                .map(dataBuffer -> {
+                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(bytes);
+                    DataBufferUtils.release(dataBuffer);
+                    return bytes;
+                })
+                .flatMap(bytes -> {
+                    item.setImgPath("/images/" + file.filename());
+                    Path path = Paths.get("src/main/resources/static" + item.getImgPath());
+                    try {
+                        Files.write(path, bytes);
+                    } catch (IOException ignored) {
+                    }
+                    return itemService.save(item);
+                })
+                .thenReturn("redirect:/admin-items");
     }
 
     @GetMapping("/delete/{id}")

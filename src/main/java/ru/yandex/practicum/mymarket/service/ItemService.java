@@ -34,15 +34,19 @@ public class ItemService {
         return itemRepository.findById(id).map(itemMapper::toDto);
     }
 
-    public Flux<ItemDto> findByFiltr(String search, String sortType, int pageNumber, int pageSize) {
+    public Mono<Page<ItemDto>> findByFiltr(String search, String sortType, int pageNumber, int pageSize) {
         Sort sort = switch (sortType) {
             case "ALPHA" -> Sort.by("title");
             case "PRICE" -> Sort.by("price");
-            default -> Sort.unsorted();
+            default ->  Sort.by("unsorted");
         };
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        return itemRepository.findByFiltr(search, pageable).map(itemMapper::toDto);
+        return itemRepository.findByFiltr(search, pageable, 2)
+                .map(itemMapper::toDto)
+                .collectList()
+                .zipWith(itemRepository.countByFiltr(search))
+                .map(tuple -> new PageImpl<>(tuple.getT1(), pageable, tuple.getT2()));
     }
 }

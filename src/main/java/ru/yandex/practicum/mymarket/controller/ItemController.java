@@ -1,10 +1,12 @@
 package ru.yandex.practicum.mymarket.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.CartService;
 import ru.yandex.practicum.mymarket.service.ItemService;
@@ -25,47 +27,46 @@ public class ItemController {
         this.itemService = itemService;
         this.cartService = cartService;
     }
-/* todo
+
     @GetMapping
-    public String findByFiltr(
+    public Mono<Rendering> findByFiltr(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "NO") String sort,
             @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "5") int pageSize,
-            Model model
+            @RequestParam(defaultValue = "5") int pageSize
     ){
-        Page<ItemDto> paging = itemService.findByFiltr(search, sort, pageNumber, pageSize);
-        List<ItemDto> content = new ArrayList<>(paging.getContent());
+        return itemService.findByFiltr(search, sort, pageNumber, pageSize)
+                .map(paging -> {
+                    List<ItemDto> content = new ArrayList<>(paging.getContent());
 
-        int colCount = 3;
-        int mod = content.size() % colCount;
+                    int colCount = 3;
+                    int mod = content.size() % colCount;
 
-        for (int i = 1; i <= mod; i++)
-            content.add(new ItemDto(-1L));
+                    for (int i = 1; i <= mod; i++)
+                        content.add(new ItemDto(-1L));
 
-        List<List<ItemDto>> items = IntStream.range(0, (content.size() + colCount - 1) / colCount)
-                .mapToObj(i -> content.subList(i * colCount, Math.min((i + 1) * colCount, content.size())))
-                .collect(Collectors.toList());
+                    List<List<ItemDto>> items = IntStream.range(0, (content.size() + colCount - 1) / colCount)
+                            .mapToObj(i -> content.subList(i * colCount, Math.min((i + 1) * colCount, content.size())))
+                            .collect(Collectors.toList());
 
-        model.addAttribute("search", search);
-        model.addAttribute("sort", sort);
-        model.addAttribute("paging", paging);
-        model.addAttribute("items", items);
-
-        return "items";
+                    return Rendering.view("items")
+                            .modelAttribute("search", search)
+                            .modelAttribute("sort", sort)
+                            .modelAttribute("paging", paging)
+                            .modelAttribute("items", items)
+                            .build();
+                });
     }
 
     @GetMapping("/{id}")
-    public String getItemById(@PathVariable Long id, Model model) {
-        Optional<ItemDto> item = itemService.findById(id);
-        if (item.isPresent()) {
-            model.addAttribute("item", item.get());
-            return "item";
-        }
-
-        return "redirect:/items";
+    public Mono<Rendering> getItemById(@PathVariable Long id) {
+        return itemService.findById(id)
+                .map(item -> Rendering.view("item")
+                        .modelAttribute("item", item)
+                        .build())
+                .switchIfEmpty(Mono.just(Rendering.redirectTo("/items").build()));
     }
-
+/* todo
     @PostMapping
     public String doItemsAction(
             @RequestParam Long id,

@@ -33,7 +33,6 @@ public class CartService {
         return cartRepository.cartTotal();
     }
 
-    // todo
     /*
     public void changeCount(String action, Long id) {
         Optional<Cart> optionalCart = cartRepository.findFirstByStatus("CURRENT");
