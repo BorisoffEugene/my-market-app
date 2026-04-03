@@ -2,6 +2,7 @@ package ru.yandex.practicum.mymarket.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.mymarket.domain.Order;
+import ru.yandex.practicum.mymarket.domain.OrderItem;
 import ru.yandex.practicum.mymarket.dto.OrderDto;
 
 import java.util.List;
@@ -11,13 +12,11 @@ public class OrderMapper {
     public OrderMapper() {
     }
 
-    public OrderDto toDto(Order order) {
-        return null; //todo
-        //return new OrderDto(order.getId(), order.getItems(), order.getTotalSum());
+    public OrderDto toDto(Order order, List<OrderItem> items) {
+        return new OrderDto(order.getId(), items, order.getTotalSum());
     }
 
     public Order toEntity(OrderDto orderDto) {
-        return null; //todo
-        //return new Order(orderDto.getId(), orderDto.getItems(), orderDto.getTotalSum());
+        return new Order(orderDto.getId(), orderDto.getTotalSum());
     }
 }

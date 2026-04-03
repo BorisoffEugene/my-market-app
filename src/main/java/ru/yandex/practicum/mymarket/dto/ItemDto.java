@@ -1,5 +1,7 @@
 package ru.yandex.practicum.mymarket.dto;
 
+import java.util.Objects;
+
 public class ItemDto {
     private Long id;
     private String title;
@@ -78,5 +80,17 @@ public class ItemDto {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ItemDto itemDto = (ItemDto) o;
+        return count == itemDto.count && Objects.equals(id, itemDto.id) && Objects.equals(title, itemDto.title) && Objects.equals(description, itemDto.description) && Objects.equals(imgPath, itemDto.imgPath) && Objects.equals(price, itemDto.price);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, imgPath, price, count);
     }
 }

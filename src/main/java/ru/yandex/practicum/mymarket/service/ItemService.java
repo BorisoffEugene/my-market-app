@@ -43,7 +43,7 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        return itemRepository.findByFiltr(search, pageable, 2)
+        return itemRepository.findByFiltr(search, pageable)
                 .map(itemMapper::toDto)
                 .collectList()
                 .zipWith(itemRepository.countByFiltr(search))

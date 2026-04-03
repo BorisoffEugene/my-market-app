@@ -2,7 +2,6 @@ package ru.yandex.practicum.mymarket.repository;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,7 +25,7 @@ public interface ItemRepository extends ReactiveCrudRepository<Item, Long> {
                     limit :#{#pageable.pageSize} offset :#{#pageable.offset}
                     """
     )
-    Flux<Item> findByFiltr(String search, Pageable pageable, int order);
+    Flux<Item> findByFiltr(String search, Pageable pageable);
 
     @Query("""
                     select
@@ -50,5 +49,5 @@ public interface ItemRepository extends ReactiveCrudRepository<Item, Long> {
                     	i.id = :id
                     """
     )
-    Mono<Item> findById(@Param("id") Long id);
+    Mono<Item> findById(Long id);
 }

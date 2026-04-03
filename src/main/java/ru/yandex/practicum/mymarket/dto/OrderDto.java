@@ -3,6 +3,7 @@ package ru.yandex.practicum.mymarket.dto;
 import ru.yandex.practicum.mymarket.domain.OrderItem;
 
 import java.util.List;
+import java.util.Objects;
 
 public class OrderDto {
     private Long id;
@@ -42,5 +43,17 @@ public class OrderDto {
 
     public void setTotalSum(Long totalSum) {
         this.totalSum = totalSum;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderDto orderDto = (OrderDto) o;
+        return Objects.equals(id, orderDto.id) && Objects.equals(items, orderDto.items) && Objects.equals(totalSum, orderDto.totalSum);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, items, totalSum);
     }
 }

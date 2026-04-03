@@ -70,8 +70,8 @@ public class AdminItemController {
     @GetMapping("/edit/{id}")
     public Mono<Rendering> edit(@PathVariable Long id) {
         return itemService.findById(id)
-                .map(i -> Rendering.view("admin-item")
-                        .modelAttribute("item", i)
+                .map(item -> Rendering.view("admin-item")
+                        .modelAttribute("item", item)
                         .build())
                 .switchIfEmpty(Mono.just(Rendering.redirectTo("/admin-items").build()));
     }

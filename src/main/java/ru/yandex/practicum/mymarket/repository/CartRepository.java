@@ -23,6 +23,6 @@ public interface CartRepository extends ReactiveCrudRepository<Cart, Long> {
     Mono<Long> cartTotal();
 
     @Modifying
-    @Query("update market.cart c set c.status = 'SOLD' where c.status = 'CURRENT'")
+    @Query("update market.cart set status = 'SOLD' where status = 'CURRENT'")
     Mono<Void> sold();
 }

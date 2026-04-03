@@ -14,6 +14,15 @@ public class Order {
     public Order() {
     }
 
+    public Order(Long totalSum) {
+        this.totalSum = totalSum;
+    }
+
+    public Order(Long id, Long totalSum) {
+        this.id = id;
+        this.totalSum = totalSum;
+    }
+
     public Long getId() {
         return id;
     }
