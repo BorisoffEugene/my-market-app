@@ -1,31 +1,23 @@
 package ru.yandex.practicum.mymarket.integration.db;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.mymarket.domain.Order;
-import ru.yandex.practicum.mymarket.domain.OrderItem;
+import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
 import ru.yandex.practicum.mymarket.repository.OrderRepository;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-@SpringBootTest
-@Transactional
+@DataR2dbcTest
 @DisplayName("Интеграционное (DB) тестирование заказов")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class OrderRepositoryTest {
     @Autowired
     private OrderRepository orderRepository;
-
+/*
     private Order order1;
     private Order order2;
 
-/*
+
     @BeforeEach
     void beforeEach() {
         orderRepository.deleteAll();

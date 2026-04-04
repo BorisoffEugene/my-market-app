@@ -1,21 +1,14 @@
 package ru.yandex.practicum.mymarket.integration.db;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.mymarket.domain.Cart;
-import ru.yandex.practicum.mymarket.domain.Item;
+import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
 import ru.yandex.practicum.mymarket.repository.CartRepository;
 import ru.yandex.practicum.mymarket.repository.ItemRepository;
-import ru.yandex.practicum.mymarket.service.CartService;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-@SpringBootTest
-@Transactional
+@DataR2dbcTest
 @DisplayName("Интеграционное (DB) тестирование корзины")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class CartRepositoryTest {
@@ -23,11 +16,10 @@ public class CartRepositoryTest {
     private CartRepository cartRepository;
     @Autowired
     private ItemRepository itemRepository;
-    @Autowired
-    private CartService cartService;
+/*
 
     private Item item;
-/*
+
     @BeforeEach
     void beforeEach() {
         itemRepository.deleteAll();
