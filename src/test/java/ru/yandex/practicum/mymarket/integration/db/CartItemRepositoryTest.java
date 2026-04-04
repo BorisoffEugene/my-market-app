@@ -1,11 +1,13 @@
 package ru.yandex.practicum.mymarket.integration.db;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 import ru.yandex.practicum.mymarket.domain.CartItem;
 import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.repository.CartItemRepository;
@@ -18,36 +20,34 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@Transactional
+@DataR2dbcTest
 @DisplayName("Интеграционное (DB) тестирование товаров в корзине")
+@TestMethodOrder(MethodOrderer.DisplayName.class)
 public class CartItemRepositoryTest {
     @Autowired
-    private CartItemRepository cartItemRepository;
-    @Autowired
-    private CartRepository cartRepository;
-    @Autowired
     private ItemRepository itemRepository;
-    @Autowired
-    private CartService cartService;
 
-    private Item item;
-/*
-    @BeforeEach
+
+    /*@BeforeEach
     void beforeEach() {
-        itemRepository.deleteAll();
-        item = itemRepository.save(new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1));
-        cartRepository.deleteAll();
-        cartService.changeCount("PLUS", item.getId());
+        itemRepository.deleteAll().block();
+        item = itemRepository.save(new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1)).block();
+        cartRepository.deleteAll().block();
+        //cartService.changeCount("PLUS", item.getId());
     }
 
     @Test
     @DisplayName("Получение товаров в корзине (товары есть)")
     void testFindCartItems_Success() {
-        List<Item> items = cartItemRepository.findCartItems();
+        Item item = new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
+
+        StepVerifier.create(itemRepository.save(item))
+                .expectNextMatches(savedItem -> savedItem.getId() != null && savedItem.getTitle().equals("Название 1"))
+                .verifyComplete();
+
         assertNotNull(items, "Товары в корзине должны быть");
-        assertEquals(1, items.size(), String.format("Товаров в корзине должно быть: %d", 1));
-        assertEquals(item.getTitle(), items.getFirst().getTitle(), String.format("Наименование товара в корзине: %s", item.getTitle()));
+        assertEquals(1, items.collectList().block().size(), String.format("Товаров в корзине должно быть: %d", 1));
+        assertEquals(item.getTitle(), items.collectList().block().getFirst().getTitle(), String.format("Наименование товара в корзине: %s", item.getTitle()));
     }
 
     @Test

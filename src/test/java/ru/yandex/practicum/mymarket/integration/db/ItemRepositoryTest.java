@@ -2,9 +2,11 @@ package ru.yandex.practicum.mymarket.integration.db;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.repository.ItemRepository;
 
@@ -13,8 +15,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@Transactional
+
+@DataR2dbcTest
 @DisplayName("Интеграционное (DB) тестирование товаров")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class ItemRepositoryTest {
@@ -23,19 +25,19 @@ public class ItemRepositoryTest {
 
     private Item item1;
     private Item item2;
-/*
+
     @BeforeEach
     void beforeEach() {
-        itemRepository.deleteAll();
-        item1 = itemRepository.save(new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1));
-        item2 = itemRepository.save(new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2));
+        //itemRepository.deleteAll().block();
+        //item1 = itemRepository.save(new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1));
+        //item2 = itemRepository.save(new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2));
     }
 
     @Test
     @DisplayName("Получение списка товаров (товары есть)")
     void testFindAll_Success() {
-        List<Item> items = itemRepository.findAll(Sort.by("id"));
-
+        //List<Item> items = itemRepository.findAll().collectList().block();
+        /*
         assertNotNull(items, "Товары должены существовать");
         assertEquals(2, items.size(), "Количество товаров должно быть 2");
         assertEquals(item1.getTitle(), items.getFirst().getTitle(), String.format("Название должно быть: %s", item1.getTitle()));
@@ -43,8 +45,10 @@ public class ItemRepositoryTest {
         assertEquals(item1.getImgPath(), items.getFirst().getImgPath(), String.format("Путь к изображению должен быть: %s", item1.getImgPath()));
         assertEquals(item1.getPrice(), items.getFirst().getPrice(), String.format("Цена должна быть: %d", item1.getPrice()));
         assertEquals(item1.getCount(), items.getFirst().getCount(), String.format("Количество должно быть: %d", item1.getCount()));
-    }
 
+         */
+    }
+/*
     @Test
     @DisplayName("Получение списка товаров (товаров нет)")
     void testFindAll_NotFound() {

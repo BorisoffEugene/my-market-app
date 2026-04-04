@@ -2,38 +2,37 @@ package ru.yandex.practicum.mymarket.integration.web;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
 import org.springframework.data.domain.*;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.controller.ItemController;
-import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.CartService;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
+@WebFluxTest(ItemController.class)
 @DisplayName("Интеграционное (WEB) тестирование товаров")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class ItemControllerTest {
     @Autowired
-    private MockMvc mockMvc;
+    private WebTestClient webTestClient;
 
     @MockitoBean
     private ItemService itemService;
 
     @MockitoBean
     private CartService cartService;
-/*
+
     @Test
     @DisplayName("Получение списка товаров + поиск + пагинация (товары есть)")
-    void testFindByFiltr_Success() throws Exception {
+    void testFindByFiltr_Success() {
         String search = "";
         String sort = "NO";
         int pageNumber = 0;
@@ -47,86 +46,98 @@ public class ItemControllerTest {
                 pageable,
                 2);
 
-        doReturn(paging).when(itemService).findByFiltr(search, sort, pageNumber, pageSize);
+        when(itemService.findByFiltr(search, sort, pageNumber, pageSize)).thenReturn(Mono.just(paging));
 
-        mockMvc.perform(get("/items"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("items"))
-                .andExpect(model().attributeExists("search", "sort", "paging", "items"));
+        webTestClient.get()
+                .uri("/items")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class)
+                .value(html -> {
+                    assert html.contains("Название 1");
+                    assert html.contains("Описание 1");
+                    assert html.contains("1000");
+                });
     }
 
     @Test
     @DisplayName("Получение списка товаров + поиск + пагинация (товаров нет)")
-    void testFindByFiltr_NotFound() throws Exception {
+    void testFindByFiltr_NotFound() {
         String search = "";
         String sort = "NO";
         int pageNumber = 0;
         int pageSize = 5;
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.unsorted());
-        Page<Item> paging = new PageImpl<>(List.of(), pageable, 0);
+        Page<ItemDto> paging = new PageImpl<>(List.of(), pageable, 0);
 
-        doReturn(paging).when(itemService).findByFiltr(search, sort, pageNumber, pageSize);
+        when(itemService.findByFiltr(search, sort, pageNumber, pageSize)).thenReturn(Mono.just(paging));
 
-        mockMvc.perform(get("/items"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("items"))
-                .andExpect(model().attributeExists("search", "sort", "paging", "items"));
+        webTestClient.get()
+                .uri("/items")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class);
     }
 
     @Test
     @DisplayName("Получение товара (товар есть)")
-    void testFindById_Success() throws Exception {
+    void testFindById_Success() {
         Long id = 1L;
         ItemDto item = new ItemDto("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
         item.setId(id);
-        doReturn(Optional.of(item)).when(itemService).findById(id);
+        when(itemService.findById(id)).thenReturn(Mono.just(item));
 
-        mockMvc.perform(get("/items/{id}", id))
-                .andExpect(status().isOk())
-                .andExpect(view().name("item"))
-                .andExpect(model().attributeExists("item"));
+        webTestClient.get()
+                .uri("/items/1")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class)
+                .value(html -> {
+                    assert html.contains("Название 1");
+                    assert html.contains("Описание 1");
+                    assert html.contains("1000");
+                });
     }
 
     @Test
     @DisplayName("Получение товара (товара нет)")
-    void testFindById_NotFound() throws Exception {
-        Long id = -1L;
-        doReturn(Optional.empty()).when(itemService).findById(id);
+    void testFindById_NotFound() {
+        when(itemService.findById(-1L)).thenReturn(Mono.empty());
 
-        mockMvc.perform(get("/items/{id}", id))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/items"));
+        webTestClient.get()
+                .uri("/items/-1")
+                .exchange()
+                .expectStatus().is3xxRedirection()
+                .expectHeader().valueEquals("Location", "/items");
     }
 
     @Test
     @DisplayName("Изменение количества товара на витрине")
-    void testDoItemsAction() throws Exception {
-        String search = "";
-        String sort = "NO";
-        int pageNumber = 0;
-        int pageSize = 5;
-        String action = "PLUS";
-        Long id = 1L;
+    void testDoItemsAction() {
+        when(cartService.changeCount("PLUS", 1L)).thenReturn(Mono.empty());
 
-        doNothing().when(cartService).changeCount(action, id);
-
-        mockMvc.perform(post("/items?id={id}&search={search}&sort={sort}&pageNumber={pageNumber}&pageSize={pageSize}&action={action}", id, search, sort, pageNumber, pageSize, action))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("/items?*"));
+        webTestClient.post()
+                .uri("/items?id=1&action=PLUS")
+                .exchange()
+                .expectStatus().is3xxRedirection()
+                .expectHeader().valueEquals("Location", "/items?search=&sort=NO&pageNumber=0&pageSize=5");
     }
 
     @Test
     @DisplayName("Изменение количества товара в карточке товара")
-    void testDoItemAction() throws Exception {
+    void testDoItemAction() {
         String action = "PLUS";
         Long id = 1L;
 
-        doNothing().when(cartService).changeCount(action, id);
+        when(cartService.changeCount("PLUS", 1L)).thenReturn(Mono.empty());
 
-        mockMvc.perform(post("/items/{id}?action={action}", id, action))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/items/1"));
+        webTestClient.post()
+                .uri("/items/1?action=PLUS")
+                .exchange()
+                .expectStatus().is3xxRedirection()
+                .expectHeader().valueEquals("Location", "/items/1");
     }
-
- */
 }

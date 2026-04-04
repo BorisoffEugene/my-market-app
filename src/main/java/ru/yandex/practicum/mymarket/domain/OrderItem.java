@@ -17,7 +17,11 @@ public class OrderItem {
     public OrderItem() {
     }
 
-
+    public OrderItem(String title, int count, Long price) {
+        this.title = title;
+        this.count = count;
+        this.price = price;
+    }
 
     public Long getId() {
         return id;
