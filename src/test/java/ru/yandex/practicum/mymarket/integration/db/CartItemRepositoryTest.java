@@ -1,14 +1,21 @@
 package ru.yandex.practicum.mymarket.integration.db;
 
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
+import reactor.test.StepVerifier;
+import ru.yandex.practicum.mymarket.domain.Cart;
+import ru.yandex.practicum.mymarket.domain.CartItem;
+import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.repository.CartItemRepository;
 import ru.yandex.practicum.mymarket.repository.CartRepository;
 import ru.yandex.practicum.mymarket.repository.ItemRepository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @DataR2dbcTest
 @DisplayName("Интеграционное (DB) тестирование товаров в корзине")
+@TestMethodOrder(MethodOrderer.DisplayName.class)
 public class CartItemRepositoryTest {
     @Autowired
     private CartItemRepository cartItemRepository;
@@ -17,48 +24,53 @@ public class CartItemRepositoryTest {
     @Autowired
     private ItemRepository itemRepository;
 
-/*
     private Item item;
 
     @BeforeEach
     void beforeEach() {
-        itemRepository.deleteAll();
-        item = itemRepository.save(new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1));
-        cartRepository.deleteAll();
-        cartService.changeCount("PLUS", item.getId());
+        itemRepository.deleteAll().block();
+        item = itemRepository.save(new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1)).block();
+        cartRepository.deleteAll().block();
+        Cart cart = cartRepository.save(new Cart()).block();
+        CartItem cartItem = cartItemRepository.save(new CartItem(cart.getId(), item.getId())).block();
+        cartItem.incCount();
+        cartItemRepository.save(cartItem).block();
+        cart.setTotal(1_000L);
+        cartRepository.save(cart).block();
     }
 
     @Test
     @DisplayName("Получение товаров в корзине (товары есть)")
     void testFindCartItems_Success() {
-        List<Item> items = cartItemRepository.findCartItems();
-        assertNotNull(items, "Товары в корзине должны быть");
-        assertEquals(1, items.size(), String.format("Товаров в корзине должно быть: %d", 1));
-        assertEquals(item.getTitle(), items.getFirst().getTitle(), String.format("Наименование товара в корзине: %s", item.getTitle()));
+        StepVerifier.create(cartItemRepository.findCartItems())
+                .assertNext(findItem -> {
+                    assertThat(findItem.getTitle().equals(item.getTitle()));
+                })
+                .verifyComplete();
     }
 
     @Test
     @DisplayName("Получение товаров в корзине (товаров нет)")
     void testFindCartItems_NotFound() {
-        cartRepository.deleteAll();
-        List<Item> items = cartItemRepository.findCartItems();
-        assertEquals(0, items.size(), String.format("Товаров в корзине должно быть: %d", 0));
+        cartRepository.deleteAll().block();
+        StepVerifier.create(cartItemRepository.findCartItems())
+                .expectNextCount(0)
+                .verifyComplete();
     }
 
     @Test
     @DisplayName("Получение товара в корзине (товар есть)")
     void testFindByItemId_Success() {
-        Optional<CartItem> cartItem = cartItemRepository.findByItemId(item.getId());
-        assertTrue(cartItem.isPresent(), "Товары в корзине должны быть");
-        assertEquals(item.getId(), cartItem.get().getItemId(), String.format("ID товара в корзине должен быть: %s", item.getId()));
+        StepVerifier.create(cartItemRepository.findByItemId(item.getId()))
+                .expectNextMatches(item -> item.getItemId().equals(item.getId()))
+                .verifyComplete();
     }
 
     @Test
     @DisplayName("Получение товара в корзине (товара нет)")
     void testFindByItemId_NotFound() {
-        Optional<CartItem> cartItem = cartItemRepository.findByItemId(-1L);
-        assertFalse(cartItem.isPresent(), "Товара в корзине не должны быть");
+        StepVerifier.create(cartItemRepository.findByItemId(-1L))
+                .expectNextCount(0)
+                .verifyComplete();
     }
-
- */
 }

@@ -1,11 +1,17 @@
 package ru.yandex.practicum.mymarket.integration.db;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.repository.ItemRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataR2dbcTest
 @DisplayName("Интеграционное (DB) тестирование товаров")
@@ -13,84 +19,78 @@ import ru.yandex.practicum.mymarket.repository.ItemRepository;
 public class ItemRepositoryTest {
     @Autowired
     private ItemRepository itemRepository;
-/*
+
     private Item item1;
     private Item item2;
 
     @BeforeEach
     void beforeEach() {
-        itemRepository.deleteAll();
-        item1 = itemRepository.save(new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1));
-        item2 = itemRepository.save(new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2));
+        itemRepository.deleteAll().block();
+        item1 = itemRepository.save(new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1)).block();
+        item2 = itemRepository.save(new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)).block();
     }
 
     @Test
     @DisplayName("Получение списка товаров (товары есть)")
     void testFindAll_Success() {
-        List<Item> items = itemRepository.findAll(Sort.by("id"));
-
-        assertNotNull(items, "Товары должены существовать");
-        assertEquals(2, items.size(), "Количество товаров должно быть 2");
-        assertEquals(item1.getTitle(), items.getFirst().getTitle(), String.format("Название должно быть: %s", item1.getTitle()));
-        assertEquals(item1.getDescription(), items.getFirst().getDescription(), String.format("Описание должно быть: %s", item1.getDescription()));
-        assertEquals(item1.getImgPath(), items.getFirst().getImgPath(), String.format("Путь к изображению должен быть: %s", item1.getImgPath()));
-        assertEquals(item1.getPrice(), items.getFirst().getPrice(), String.format("Цена должна быть: %d", item1.getPrice()));
-        assertEquals(item1.getCount(), items.getFirst().getCount(), String.format("Количество должно быть: %d", item1.getCount()));
+        StepVerifier.create(itemRepository.findAll())
+                .assertNext(item -> {
+                    assertThat(item.getTitle().equals(item1.getTitle()));
+                })
+                .thenConsumeWhile(item -> true)
+                .verifyComplete();
     }
 
     @Test
     @DisplayName("Получение списка товаров (товаров нет)")
     void testFindAll_NotFound() {
-        itemRepository.deleteAll();
-        List<Item> items = itemRepository.findAll(Sort.by("id"));
-        assertEquals(0, items.size(), "Количество товаров должно быть 0");
+        itemRepository.deleteAll().block();
+
+        StepVerifier.create(itemRepository.findAll())
+                .expectNextCount(0)
+                .verifyComplete();
     }
 
     @Test
     @DisplayName("Сохранение товара")
     void testSave() {
-        Item item = itemRepository.save(new Item("Название 3", "Описание 3", "/images/3.jpg", 3_000L, 3));
+        Mono<Item> item = itemRepository.save(new Item("Название 3", "Описание 3", "/images/3.jpg", 3_000L, 3));
 
-        assertNotNull(item, "Товар должен существовать");
-        assertEquals("Название 3", item.getTitle(), String.format("Название должно быть: %s", "Название 3"));
-        assertEquals("Описание 3", item.getDescription(), String.format("Описание должно быть: %s", "Описание 3"));
-        assertEquals("/images/3.jpg", item.getImgPath(), String.format("Путь к изображению должен быть: %s", "/images/3.jpg"));
-        assertEquals(3_000L, item.getPrice(), String.format("Цена должна быть: %d", 3_000L));
-        assertEquals(3, item.getCount(), String.format("Количество должно быть: %d", 3));
+        StepVerifier.create(item)
+                .expectNextMatches(savedItem ->
+                        savedItem.getId() != null && savedItem.getTitle().equals("Название 3")
+                )
+                .verifyComplete();
 
-        List<Item> items = itemRepository.findAll();
-        assertEquals(3, items.size(), String.format("Количество товаров должно быть: %d", 3));
+        StepVerifier.create(itemRepository.findAll())
+                .expectNextCount(3)
+                .verifyComplete();
     }
 
     @Test
     @DisplayName("Удаление товара")
     void testDeleteById() {
-        itemRepository.deleteById(item1.getId());
-        List<Item> items = itemRepository.findAll();
-        assertEquals(1, items.size(), "Количество товаров должно быть 1");
-        assertTrue(items.stream().noneMatch(c -> c.getId().equals(item1.getId())), String.format("Не должно быть товара с ID: %d", item1.getId()));
+        itemRepository.deleteById(item1.getId()).block();
+
+        StepVerifier.create(itemRepository.findAll())
+                .expectNextCount(1)
+                .verifyComplete();
     }
 
     @Test
     @DisplayName("Получение товара (товар есть)")
     void testFindById_Success() {
-        Optional<Item> optionalItem = itemRepository.findById(item1.getId());
-        assertTrue(optionalItem.isPresent(), "Товар должен существовать");
-
-        Item item = optionalItem.get();
-
-        assertEquals(item1.getTitle(), item.getTitle(), String.format("Название должно быть: %s", item1.getTitle()));
-        assertEquals(item1.getDescription(), item.getDescription(), String.format("Описание должно быть: %s", item1.getDescription()));
-        assertEquals(item1.getImgPath(), item.getImgPath(), String.format("Путь к изображению должен быть: %s", item1.getImgPath()));
-        assertEquals(item1.getPrice(), item.getPrice(), String.format("Цена должна быть: %d", item1.getPrice()));
-        assertEquals(item1.getCount(), item.getCount(), String.format("Количество должно быть: %d", item1.getCount()));
+        StepVerifier.create(itemRepository.findById(item1.getId()))
+                .expectNextMatches(item -> item.getTitle().equals(item1.getTitle()))
+                .verifyComplete();
     }
 
     @Test
     @DisplayName("Получение товара (товара нет)")
     void testFindById_NotFound() {
-        Optional<Item> optionalItem = itemRepository.findById(-1L);
-        assertFalse(optionalItem.isPresent(), "Товара не должно быть");
+        StepVerifier.create(itemRepository.findById(-1L))
+                .expectNextCount(0)
+                .verifyComplete();
     }
 
     @Test
@@ -99,19 +99,12 @@ public class ItemRepositoryTest {
         String search = "Название";
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
 
-        Page<Item> item = itemRepository.findByFiltr(search, pageable);
-
-        assertEquals(0, item.getNumber(), "Номер текущей страницы должен быть 0");
-        assertEquals(5, item.getSize(), "Количество товаров на странице должно быть 5");
-        assertFalse(item.hasNext(), "Следующей страницы не должно быть");
-        assertFalse(item.hasPrevious(), "Предыдущей страницы не должно быть");
-        assertTrue(item.hasContent(), "Товары должены существовать");
-        assertEquals(2, item.getContent().size(), "Количество товаров должно быть 2");
-        assertEquals(item1.getTitle(), item.getContent().getFirst().getTitle(), String.format("Название должно быть: %s", item1.getTitle()));
-        assertEquals(item1.getDescription(), item.getContent().getFirst().getDescription(), String.format("Описание должно быть: %s", item1.getDescription()));
-        assertEquals(item1.getImgPath(), item.getContent().getFirst().getImgPath(), String.format("Путь к изображению должен быть: %s", item1.getImgPath()));
-        assertEquals(item1.getPrice(), item.getContent().getFirst().getPrice(), String.format("Цена должна быть: %d", item1.getPrice()));
-        assertEquals(item1.getCount(), item.getContent().getFirst().getCount(), String.format("Количество должно быть: %d", item1.getCount()));
+        StepVerifier.create(itemRepository.findByFiltr(search, pageable))
+                .assertNext(item -> {
+                    assertThat(item.getTitle().equals(item1.getTitle()));
+                })
+                .thenConsumeWhile(item -> true)
+                .verifyComplete();
     }
 
     @Test
@@ -120,14 +113,8 @@ public class ItemRepositoryTest {
         String search = "Несуществующее название";
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
 
-        Page<Item> item = itemRepository.findByFiltr(search, pageable);
-
-        assertEquals(0, item.getNumber(), "Номер текущей страницы должен быть 0");
-        assertEquals(5, item.getSize(), "Количество товаров на странице должно быть 5");
-        assertFalse(item.hasNext(), "Следующей страницы не должно быть");
-        assertFalse(item.hasPrevious(), "Предыдущей страницы не должно быть");
-        assertFalse(item.hasContent(), "Товаров не должно быть");
+        StepVerifier.create(itemRepository.findByFiltr(search, pageable))
+                .expectNextCount(0)
+                .verifyComplete();
     }
-
- */
 }
