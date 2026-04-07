@@ -1,13 +1,10 @@
 package ru.yandex.practicum.mymarket.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.mymarket.dto.OrderDto;
+import org.springframework.web.reactive.result.view.Rendering;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.service.OrderService;
-
-import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/orders")
@@ -19,21 +16,21 @@ public class OrderController {
     }
 
     @GetMapping
-    public String findAll(Model model) {
-        List<OrderDto> orders = orderService.findAll();
-        model.addAttribute("orders", orders);
-        return "orders";
+    public Mono<Rendering> findAll() {
+        return Mono.just(
+                Rendering.view("orders")
+                        .modelAttribute("orders", orderService.findAll())
+                        .build()
+        );
     }
 
     @GetMapping("/{id}")
-    public String findById(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean newOrder, Model model) {
-        Optional<OrderDto> order = orderService.findById(id);
-        if (order.isPresent()) {
-            model.addAttribute("newOrder", newOrder);
-            model.addAttribute("order", order.get());
-            return "order";
-        }
-
-        return "redirect:/orders";
+    public Mono<Rendering> findById(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean newOrder) {
+        return orderService.findById(id)
+                .map(order -> Rendering.view("order")
+                        .modelAttribute("newOrder", newOrder)
+                        .modelAttribute("order", order)
+                        .build())
+                .switchIfEmpty(Mono.just(Rendering.redirectTo("/orders").build()));
     }
 }

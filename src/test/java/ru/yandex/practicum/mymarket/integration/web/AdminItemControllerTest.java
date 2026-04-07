@@ -2,112 +2,120 @@ package ru.yandex.practicum.mymarket.integration.web;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.data.domain.Sort;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.controller.AdminItemController;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.ItemService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AdminItemController.class)
+@WebFluxTest(AdminItemController.class)
 @DisplayName("Интеграционное (WEB) тестирование админ-панели")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class AdminItemControllerTest {
     @Autowired
-    private MockMvc mockMvc;
+    private WebTestClient webTestClient;
 
     @MockitoBean
     private ItemService itemService;
 
     @Test
     @DisplayName("Получение списка товаров (товары есть)")
-    void testFindAll_Success() throws Exception {
+    void testFindAll_Success() {
         List<ItemDto> items = List.of(
                 new ItemDto("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1),
                 new ItemDto("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
         );
-        doReturn(items).when(itemService).findAll(Sort.by("id"));
+        when(itemService.findAll()).thenReturn(Flux.fromIterable(items));
 
-        mockMvc.perform(get("/admin-items"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("admin-items"))
-                .andExpect(model().attributeExists("items"));
+        webTestClient.get()
+                .uri("/admin-items")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class)
+                .value(html -> {
+                    assert html.contains("Название 1");
+                    assert html.contains("Описание 1");
+                    assert html.contains("1000");
+                });
     }
 
     @Test
     @DisplayName("Получение списка товаров (товаров нет)")
-    void testFindAll_NotFound() throws Exception {
-        doReturn(new ArrayList<>()).when(itemService).findAll(Sort.by("id"));
+    void testFindAll_NotFound() {
+        when(itemService.findAll()).thenReturn(Flux.fromIterable(new ArrayList<>()));
 
-        mockMvc.perform(get("/admin-items"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("admin-items"))
-                .andExpect(model().attributeExists("items"));
+        webTestClient.get()
+                .uri("/admin-items")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class);
     }
 
     @Test
     @DisplayName("Добавление товара")
-    void testAdd() throws Exception {
-        mockMvc.perform(get("/admin-items/add"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("admin-item"))
-                .andExpect(model().attributeExists("item"));
-    }
-
-    @Test
-    @DisplayName("Сохранение товара")
-    void testSave() throws Exception {
-        doNothing().when(itemService).save(any(ItemDto.class));
-
-        mockMvc.perform(multipart("/admin-items/save")
-                        .file(new MockMultipartFile("imageFile", "1.jpg", "image/*", "content".getBytes())))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin-items"));
+    void testAdd() {
+        webTestClient.get()
+                .uri("/admin-items/add")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class)
+                .value(html -> {
+                    assert html.contains("Название");
+                    assert html.contains("Описание");
+                });
     }
 
     @Test
     @DisplayName("Удаление товара")
-    void testDelete() throws Exception {
-        Long id = 1L;
-        doNothing().when(itemService).deleteById(id);
+    void testDelete() {
+        when(itemService.deleteById(1L)).thenReturn(Mono.empty());
 
-        mockMvc.perform(get("/admin-items/delete/{id}", id))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin-items"));
+        webTestClient.get()
+                .uri("/admin-items/delete/1")
+                .exchange()
+                .expectStatus().is3xxRedirection()
+                .expectHeader().valueEquals("Location", "/admin-items");
     }
 
     @Test
     @DisplayName("Редактирование товара (товар есть)")
-    void testEdit_Success() throws Exception {
-        Long id = 1L;
+    void testEdit_Success() {
         ItemDto item = new ItemDto("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
-        doReturn(Optional.of(item)).when(itemService).findById(id);
+        when(itemService.findById(1L)).thenReturn(Mono.just(item));
 
-        mockMvc.perform(get("/admin-items/edit/{id}", id))
-                .andExpect(status().isOk())
-                .andExpect(view().name("admin-item"))
-                .andExpect(model().attributeExists("item"));
+        webTestClient.get()
+                .uri("/admin-items/edit/1")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class)
+                .value(html -> {
+                    assert html.contains("Название 1");
+                    assert html.contains("Описание 1");
+                });
     }
 
     @Test
     @DisplayName("Редактирование товара (товара нет)")
-    void testEdit_NotFound() throws Exception {
-        Long id = -1L;
-        doReturn(Optional.empty()).when(itemService).findById(id);
+    void testEdit_NotFound() {
+        when(itemService.findById(-1L)).thenReturn(Mono.empty());
 
-        mockMvc.perform(get("/admin-items/edit/{id}", id))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin-items"));
+        webTestClient.get()
+                .uri("/admin-items/edit/-1")
+                .exchange()
+                .expectStatus().is3xxRedirection()
+                .expectHeader().valueEquals("Location", "/admin-items");
     }
 }

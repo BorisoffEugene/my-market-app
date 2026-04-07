@@ -1,17 +1,14 @@
 package ru.yandex.practicum.mymarket.repository;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.*;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.domain.Item;
 
-import java.util.Optional;
-
-public interface ItemRepository extends JpaRepository<Item, Long> {
-    @Query(
-            nativeQuery = true,
-            value = """
+public interface ItemRepository extends ReactiveCrudRepository<Item, Long> {
+    @Query("""
                     select
                     	i.id, i.title, i.description, i.price, i.img_path, coalesce(ci.count, 0) count
                     from
@@ -20,8 +17,17 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                     	left join market.cart_items ci on ci.cart_id = c.id and ci.item_id = i.id
                     where
                     	i.title ilike '%'||:search||'%' or i.description ilike '%'||:search||'%'
-                    """,
-            countQuery = """
+                    order by
+                        case :#{#pageable.getSort().get().toList().getFirst().getProperty()}
+                            when 'title' then i.title
+                            when 'price' then to_char(i.price, '00000000000000000000')
+                        end
+                    limit :#{#pageable.pageSize} offset :#{#pageable.offset}
+                    """
+    )
+    Flux<Item> findByFiltr(String search, Pageable pageable);
+
+    @Query("""
                     select
                     	count(i.id)
                     from
@@ -30,11 +36,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                     	i.title ilike '%'||:search||'%' or i.description ilike '%'||:search||'%'
                     """
     )
-    Page<Item> findByFiltr(@Param("search") String search, Pageable pageable);
+    Mono<Long> countByFiltr(String search);
 
-    @Query(
-            nativeQuery = true,
-            value = """
+    @Query("""
                     select
                     	i.id, i.title, i.description, i.price, i.img_path, coalesce(ci.count, 0) count
                     from
@@ -45,5 +49,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                     	i.id = :id
                     """
     )
-    Optional<Item> findById(@Param("id") Long id);
+    Mono<Item> findById(Long id);
 }

@@ -69,7 +69,7 @@ create table if not exists market.cart_items(
 	id bigserial primary key,
 	cart_id bigint not null references market.cart(id) on delete cascade,
 	item_id bigint not null unique references market.items(id) on delete cascade,
-	count int not null default 1 check(count > 0)
+	count int not null default 1 check(count >= 0)
 );
 
 comment on table market.cart_items is 'Список товаров в корзине';

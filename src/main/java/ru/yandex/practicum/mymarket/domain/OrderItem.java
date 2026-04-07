@@ -1,20 +1,15 @@
 package ru.yandex.practicum.mymarket.domain;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
 
-@Entity
 @Table(name = "order_items", schema = "market")
 public class OrderItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Order order;
-
+    private Long orderId;
     private String title;
     private int count;
     private Long price;
@@ -36,12 +31,12 @@ public class OrderItem {
         this.id = id;
     }
 
-    public Order getOrder() {
-        return order;
+    public Long getOrderId() {
+        return orderId;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
     public String getTitle() {
@@ -72,11 +67,11 @@ public class OrderItem {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         OrderItem orderItem = (OrderItem) o;
-        return count == orderItem.count && Objects.equals(id, orderItem.id) && Objects.equals(order, orderItem.order) && Objects.equals(title, orderItem.title) && Objects.equals(price, orderItem.price);
+        return count == orderItem.count && Objects.equals(id, orderItem.id) && Objects.equals(orderId, orderItem.orderId) && Objects.equals(title, orderItem.title) && Objects.equals(price, orderItem.price);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, order, title, count, price);
+        return Objects.hash(id, orderId, title, count, price);
     }
 }

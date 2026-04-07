@@ -2,80 +2,97 @@ package ru.yandex.practicum.mymarket.integration.web;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.controller.OrderController;
-import ru.yandex.practicum.mymarket.domain.Order;
 import ru.yandex.practicum.mymarket.domain.OrderItem;
+import ru.yandex.practicum.mymarket.dto.OrderDto;
 import ru.yandex.practicum.mymarket.service.OrderService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.mockito.Mockito.doReturn;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(OrderController.class)
+@WebFluxTest(OrderController.class)
 @DisplayName("Интеграционное (WEB) тестирование заказов")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class OrderControllerTest {
     @Autowired
-    private MockMvc mockMvc;
+    private WebTestClient webTestClient;
 
     @MockitoBean
     private OrderService orderService;
 
     @Test
     @DisplayName("Получение списка заказов (заказы есть)")
-    void testFindAll_Success() throws Exception {
-        List<Order> orders = List.of(
-                new Order(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L),
-                new Order(List.of(new OrderItem("Название 21", 5, 3_000L), new OrderItem("Название 22", 3, 5_000L)), 30_000L)
-        );
-        doReturn(orders).when(orderService).findAll();
+    void testFindAll_Success() {
+        Flux<OrderDto> orders = Flux.fromIterable(List.of(
+                new OrderDto(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L),
+                new OrderDto(List.of(new OrderItem("Название 21", 5, 3_000L), new OrderItem("Название 22", 3, 5_000L)), 30_000L)
+        ));
+        when(orderService.findAll()).thenReturn(orders);
 
-        mockMvc.perform(get("/orders"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("orders"))
-                .andExpect(model().attributeExists("orders"));
+        webTestClient.get()
+                .uri("/orders")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class)
+                .value(html -> {
+                    assert html.contains("Название 11");
+                    assert html.contains("Название 12");
+                    assert html.contains("30000");
+                });
     }
 
     @Test
     @DisplayName("Получение списка заказов (заказов нет)")
-    void testFindAll_NotFound() throws Exception {
-        doReturn(new ArrayList<>()).when(orderService).findAll();
+    void testFindAll_NotFound() {
+        when(orderService.findAll()).thenReturn(Flux.fromIterable(new ArrayList<>()));
 
-        mockMvc.perform(get("/orders"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("orders"))
-                .andExpect(model().attributeExists("orders"));
+        webTestClient.get()
+                .uri("/orders")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class);
     }
 
     @Test
     @DisplayName("Получение заказа (заказ есть)")
-    void testFindById_Success() throws Exception {
+    void testFindById_Success() {
         Long id = 1L;
-        Order order = new Order(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L);
+        OrderDto order = new OrderDto(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L);
         order.setId(id);
-        doReturn(Optional.of(order)).when(orderService).findById(id);
+        when(orderService.findById(id)).thenReturn(Mono.just(order));
 
-        mockMvc.perform(get("/orders/{id}", id))
-                .andExpect(status().isOk())
-                .andExpect(view().name("order"))
-                .andExpect(model().attributeExists("newOrder", "order"));
+        webTestClient.get()
+                .uri("/orders/1")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectBody(String.class)
+                .value(html -> {
+                    assert html.contains("Название 11");
+                    assert html.contains("Название 12");
+                    assert html.contains("5000");
+                });
     }
 
     @Test
     @DisplayName("Получение заказа (заказа нет)")
-    void testFindById_NotFound() throws Exception {
-        Long id = -1L;
-        doReturn(Optional.empty()).when(orderService).findById(id);
+    void testFindById_NotFound() {
+        when(orderService.findById(-1L)).thenReturn(Mono.empty());
 
-        mockMvc.perform(get("/orders/{id}", id))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/orders"));
+        webTestClient.get()
+                .uri("/orders/-1")
+                .exchange()
+                .expectStatus().is3xxRedirection()
+                .expectHeader().valueEquals("Location", "/orders");
     }
 }

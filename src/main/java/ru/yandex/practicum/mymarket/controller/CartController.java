@@ -1,12 +1,10 @@
 package ru.yandex.practicum.mymarket.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.mymarket.dto.ItemDto;
+import org.springframework.web.reactive.result.view.Rendering;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.service.CartService;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/cart/items")
@@ -18,20 +16,17 @@ public class CartController {
     }
 
     @GetMapping
-    public String items(Model model) {
-        List<ItemDto> items = cartService.items();
-        Long total = cartService.total();
-
-        model.addAttribute("items", items);
-        model.addAttribute("total", total);
-
-        return "cart";
+    public Mono<Rendering> items() {
+        return Mono.just(
+                Rendering.view("cart")
+                        .modelAttribute("items", cartService.items())
+                        .modelAttribute("total", cartService.total())
+                        .build()
+        );
     }
 
     @PostMapping
-    public String doItemAction(@RequestParam Long id, @RequestParam String action) {
-        cartService.changeCount(action, id);
-
-        return "redirect:/cart/items";
+    public Mono<String> doItemAction(@RequestParam Long id, @RequestParam String action) {
+        return cartService.changeCount(action, id).thenReturn("redirect:/cart/items");
     }
 }
