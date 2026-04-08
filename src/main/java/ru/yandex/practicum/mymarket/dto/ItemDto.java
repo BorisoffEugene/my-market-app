@@ -1,8 +1,9 @@
 package ru.yandex.practicum.mymarket.dto;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class ItemDto {
+public class ItemDto implements Serializable {
     private Long id;
     private String title;
     private String description;

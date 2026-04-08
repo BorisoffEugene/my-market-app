@@ -70,19 +70,23 @@
    ```bash
    mvn test
    ```
-5. **Запустите проект из командной строки:**
+5. **Запуск Redis c помощью Docker:**
+   ```bash
+   docker run --name redis-server -it --rm -p 6379:6379 redis:7.4.2-bookworm sh -c "redis-server && sleep 7 && redis-cli"
+   ```
+6. **Запустите проект из командной строки:**
     ```bash
     java -jar target/my-market-app-1.0.jar 
     ```
-6. **Админ страница управления товаром:**
+7. **Админ страница управления товаром:**
     ```text
     http://localhost/admin-items
     ```
-7. **Витрина товаров:**
+8. **Витрина товаров:**
     ```text
     http://localhost
     ```
-8. **Также запустить приложение можно из докера:**
+9. **Также запустить приложение можно из докера:**
     ```bash
    docker-compose up --build
     ```

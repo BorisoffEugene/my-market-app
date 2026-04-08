@@ -1,5 +1,7 @@
 package ru.yandex.practicum.mymarket.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,14 +24,17 @@ public class CartService {
         this.itemMapper = itemMapper;
     }
 
+    @Cacheable(value = "cart_items", key = "'all'")
     public Flux<ItemDto> items() {
         return cartItemRepository.findCartItems().map(itemMapper::toDto);
     }
 
+    @Cacheable(value = "cart_items", key = "'total'")
     public Mono<Long> total() {
         return cartRepository.cartTotal();
     }
 
+    @CacheEvict(value = "cart_items", allEntries = true)
     public Mono<Void> changeCount(String action, Long id) {
         return cartRepository.findFirstByStatus("CURRENT")
                 .switchIfEmpty(cartRepository.save(new Cart()))
