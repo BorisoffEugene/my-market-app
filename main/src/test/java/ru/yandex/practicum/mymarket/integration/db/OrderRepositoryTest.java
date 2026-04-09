@@ -3,14 +3,17 @@ package ru.yandex.practicum.mymarket.integration.db;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
+import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import ru.yandex.practicum.mymarket.config.RepositoryTestConfig;
 import ru.yandex.practicum.mymarket.domain.Order;
 import ru.yandex.practicum.mymarket.repository.OrderRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataR2dbcTest
+@Import(RepositoryTestConfig.class)
 @DisplayName("Интеграционное (DB) тестирование заказов")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class OrderRepositoryTest {

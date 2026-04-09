@@ -12,7 +12,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGeneralError(Exception e) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Что-то пошло не так"
+                //todo "Что-то пошло не так"
+                e.getMessage()
         );
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

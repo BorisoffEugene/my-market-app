@@ -3,17 +3,20 @@ package ru.yandex.practicum.mymarket.integration.db;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import ru.yandex.practicum.mymarket.config.RepositoryTestConfig;
 import ru.yandex.practicum.mymarket.domain.Item;
 import ru.yandex.practicum.mymarket.repository.ItemRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataR2dbcTest
+@Import(RepositoryTestConfig.class)
 @DisplayName("Интеграционное (DB) тестирование товаров")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class ItemRepositoryTest {

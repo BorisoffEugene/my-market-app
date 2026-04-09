@@ -3,11 +3,13 @@ package ru.yandex.practicum.mymarket.integration.web;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.yandex.practicum.mymarket.config.RepositoryTestConfig;
 import ru.yandex.practicum.mymarket.controller.OrderController;
 import ru.yandex.practicum.mymarket.domain.OrderItem;
 import ru.yandex.practicum.mymarket.dto.OrderDto;
@@ -19,6 +21,7 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 
 @WebFluxTest(OrderController.class)
+@Import(RepositoryTestConfig.class)
 @DisplayName("Интеграционное (WEB) тестирование заказов")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class OrderControllerTest {
