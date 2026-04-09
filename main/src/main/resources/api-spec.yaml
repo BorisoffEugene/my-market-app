@@ -1,0 +1,91 @@
+openapi: 3.0.4
+info:
+  title: Платежный сервис
+  description: Сервис приема платежей для интернет-магазина
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081/payment-service
+tags:
+  - name: payments
+    description: Платежи
+paths:
+  /balance:
+    get:
+      tags:
+        - payments
+      summary: Проверка баланса
+      description: Возвращает текущий доступный баланс
+      operationId: getBalnce
+      responses:
+        '200':
+          description: Успешное получение баланса
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  availableBalance:
+                    type: number
+                    format: float
+                    example: 1500.50
+        default:
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /debit:
+    post:
+      tags:
+        - payments
+      summary: Списание суммы платежа
+      description: Списывает средства с баланса
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: number
+                  format: float
+                  minimum: 0.01
+                  example: 100.00
+      responses:
+        '200':
+          description: Средства успешно списаны
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "SUCCESS"
+        '402':
+          description: Недостаточно средств
+        default:
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+          example: -1
+        message:
+          type: string
+          description: Текст ошибки
+          example: Ошибка!
+      required:
+        - code
+        - message

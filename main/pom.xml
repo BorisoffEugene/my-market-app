@@ -9,6 +9,8 @@
         <version>3.0</version>
     </parent>
 
+    <artifactId>main</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -33,5 +35,33 @@
         </dependency>
     </dependencies>
 
-    <artifactId>main</artifactId>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.21.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/api-spec.yaml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <apiPackage>ru.yandex.practicum.mymarket.api</apiPackage>
+                            <invokerPackage>ru.yandex.practicum.mymarket</invokerPackage>
+                            <modelPackage>ru.yandex.practicum.mymarket.domain</modelPackage>
+                            <configOptions>
+                                <library>webclient</library>
+                                <useJakartaEe>true</useJakartaEe>
+                                <generateTests>false</generateTests>
+                                <openApiNullable>false</openApiNullable>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
