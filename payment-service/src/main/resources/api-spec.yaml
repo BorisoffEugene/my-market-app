@@ -4,10 +4,15 @@ info:
   description: Сервис приема платежей для интернет-магазина
   version: 1.0.0
 servers:
-  - url: http://localhost:8080/payment-service
+  - url: http://localhost:8081/payment-service
+tags:
+  - name: payments
+    description: Платежи
 paths:
   /balance:
     get:
+      tags:
+        - payments
       summary: Проверка баланса
       description: Возвращает текущий доступный баланс
       operationId: getBalnce
@@ -31,6 +36,8 @@ paths:
                 $ref: "#/components/schemas/Error"
   /debit:
     post:
+      tags:
+        - payments
       summary: Списание суммы платежа
       description: Списывает средства с баланса
       requestBody:

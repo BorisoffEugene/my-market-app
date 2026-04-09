@@ -31,6 +31,8 @@
                             <configOptions>
                                 <library>spring-boot</library>
                                 <useJakartaEe>true</useJakartaEe>
+                                <generateTests>false</generateTests>
+                                <interfaceOnly>true</interfaceOnly>
                                 <reactive>true</reactive>
                             </configOptions>
                         </configuration>
