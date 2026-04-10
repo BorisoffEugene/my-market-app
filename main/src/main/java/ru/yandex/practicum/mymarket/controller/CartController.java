@@ -5,14 +5,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.service.CartService;
+import ru.yandex.practicum.mymarket.service.PaymentService;
 
 @Controller
 @RequestMapping("/cart/items")
 public class CartController {
     private final CartService cartService;
+    private final PaymentService paymentService;
 
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, PaymentService paymentService) {
         this.cartService = cartService;
+        this.paymentService = paymentService;
     }
 
     @GetMapping
@@ -21,6 +24,7 @@ public class CartController {
                 Rendering.view("cart")
                         .modelAttribute("items", cartService.items())
                         .modelAttribute("total", cartService.total())
+                        .modelAttribute("check", paymentService.check(cartService.total()))
                         .build()
         );
     }

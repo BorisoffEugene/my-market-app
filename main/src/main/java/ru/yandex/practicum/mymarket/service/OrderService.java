@@ -1,5 +1,6 @@
 package ru.yandex.practicum.mymarket.service;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,6 +43,7 @@ public class OrderService {
                 );
     }
 
+    @CacheEvict(value = "cart_items", allEntries = true)
     public Mono<OrderDto> sold() {
         return cartRepository.cartTotal()
                         .flatMap(total -> orderRepository.save(new Order(total))

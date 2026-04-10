@@ -52,11 +52,11 @@
                             <apiPackage>ru.yandex.practicum.mymarket.api</apiPackage>
                             <invokerPackage>ru.yandex.practicum.mymarket</invokerPackage>
                             <modelPackage>ru.yandex.practicum.mymarket.domain</modelPackage>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
                             <configOptions>
                                 <library>webclient</library>
                                 <useJakartaEe>true</useJakartaEe>
-                                <generateTests>false</generateTests>
-                                <openApiNullable>false</openApiNullable>
                             </configOptions>
                         </configuration>
                     </execution>
