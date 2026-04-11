@@ -13,6 +13,7 @@ import ru.yandex.practicum.mymarket.config.RepositoryTestConfig;
 import ru.yandex.practicum.mymarket.controller.CartController;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.CartService;
+import ru.yandex.practicum.mymarket.service.PaymentService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,8 @@ public class CartControllerTest {
 
     @MockitoBean
     private CartService cartService;
+    @MockitoBean
+    private PaymentService paymentService;
 
     @Test
     @DisplayName("Получение списка товаров в корзине (товары есть)")

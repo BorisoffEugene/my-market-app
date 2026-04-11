@@ -27,12 +27,17 @@ public class BuyControllerTest {
 
     @MockitoBean
     private OrderService orderService;
+    @MockitoBean
+    private PaymentService paymentService;
+    @MockitoBean
+    private CartService cartService;
 
     @Test
     @DisplayName("Покупка")
     void testBy() {
-        OrderDto order = new OrderDto(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L);
+        OrderDto order = new OrderDto(List.of(new OrderItem("Название 11", 1, 500L), new OrderItem("Название 12", 2, 500L)), 1_500L);
         order.setId(1L);
+        when(paymentService.debit(cartService.total())).thenReturn(Mono.just("OK"));
         when(orderService.sold()).thenReturn(Mono.just(order));
 
         webTestClient.post()

@@ -15,12 +15,12 @@ FROM eclipse-temurin:21-jre-alpine
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /my-market-app
-COPY --from=build /my-market-app/target/*.jar app.jar
+COPY --from=build /my-market-app/payment-service/target/*.jar app.jar
 
 RUN chown -R appuser:appgroup /app
 USER appuser
 
-EXPOSE 8080
+EXPOSE 8081
 
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 

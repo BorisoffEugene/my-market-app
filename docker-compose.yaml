@@ -12,15 +12,35 @@ services:
     ports:
       - "5432:5432"
 
-  app:
-    container_name: my-market-app
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+
+  app-main:
+    container_name: my-market-app-main
     build:
       context: .
-      dockerfile: Dockerfile
-    image: my-market-app
+      dockerfile: main/Dockerfile
+    ports:
+      - "8080:8080"
+    image: my-market-app-main
     restart: on-failure
     depends_on:
       - db
+      - redis
+
+  app-payservice:
+    container_name: my-market-app-payservice
+    build:
+      context: .
+      dockerfile: payment-service/Dockerfile
+    ports:
+      - "8081:8081"
+    image: my-market-app-payservice
+    restart: on-failure
 
 volumes:
   db-data:
