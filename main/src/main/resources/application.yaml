@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: my-market-app
+  sql:
+    init:
+      mode: always
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+  redis:
+    host: localhost
+    port: 6379
+  cache:
+    type: redis
+    redis:
+      time-to-live: 120000
