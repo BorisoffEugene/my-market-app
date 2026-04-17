@@ -15,3 +15,16 @@ spring:
     type: redis
     redis:
       time-to-live: 120000
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: main
+            client-secret: miy9KiOJVhiF8DZcDGltXFaQwMyeCJmU
+            authorization-grant-type: client_credentials
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8082/realms/my-market-app
