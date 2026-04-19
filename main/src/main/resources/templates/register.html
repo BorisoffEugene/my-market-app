@@ -56,9 +56,12 @@
         </div>
         <div class="d-grid">
           <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+          <br>
+          <a href="/items" class="btn btn-secondary bi bi-arrow-left-square">Главная</a>
         </div>
       </form>
       <p th:if="${error}" th:text="${error}" style="color: red;"></p>
+      <p th:if="${ok}" th:text="${ok}" style="color: green;"></p>
     </div>
   </div>
 </div>

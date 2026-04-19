@@ -1,5 +1,8 @@
 package ru.yandex.practicum.mymarket.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -33,7 +36,7 @@ public class ItemController {
             @RequestParam(defaultValue = "5") int pageSize
     ){
         return itemService.findByFiltr(search, sort, pageNumber, pageSize)
-                .map(paging -> {
+                .flatMap(paging -> {
                     List<ItemDto> content = new ArrayList<>(paging.getContent());
 
                     int colCount = 3;
@@ -46,22 +49,35 @@ public class ItemController {
                             .mapToObj(i -> content.subList(i * colCount, Math.min((i + 1) * colCount, content.size())))
                             .collect(Collectors.toList());
 
-                    return Rendering.view("items")
-                            .modelAttribute("search", search)
-                            .modelAttribute("sort", sort)
-                            .modelAttribute("paging", paging)
-                            .modelAttribute("items", items)
-                            .build();
+                    return ReactiveSecurityContextHolder.getContext()
+                            .map(SecurityContext::getAuthentication)
+                            .map(Authentication::isAuthenticated)
+                            .defaultIfEmpty(false)
+                            .map(isAuthenticated -> Rendering.view("items")
+                                    .modelAttribute("search", search)
+                                    .modelAttribute("sort", sort)
+                                    .modelAttribute("paging", paging)
+                                    .modelAttribute("items", items)
+                                    .modelAttribute("isAuthenticated", isAuthenticated)
+                                    .build()
+                            );
                 });
     }
 
     @GetMapping("/{id}")
     public Mono<Rendering> getItemById(@PathVariable Long id) {
         return itemService.findById(id)
-                .map(item -> Rendering.view("item")
-                        .modelAttribute("item", item)
-                        .build())
-                .switchIfEmpty(Mono.just(Rendering.redirectTo("/items").build()));
+                .flatMap(item -> ReactiveSecurityContextHolder.getContext()
+                        .map(SecurityContext::getAuthentication)
+                        .map(Authentication::isAuthenticated)
+                        .defaultIfEmpty(false)
+                        .map(isAuthenticated -> Rendering.view("item")
+                                .modelAttribute("item", item)
+                                .modelAttribute("isAuthenticated", isAuthenticated)
+                                .build()
+                        )
+                        .switchIfEmpty(Mono.just(Rendering.redirectTo("/items").build()))
+                );
     }
 
     @PostMapping

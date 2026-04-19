@@ -32,7 +32,10 @@ public class RegisterController {
     @PostMapping
     public Mono<String> registerUser(@ModelAttribute("user") User user, Model model) {
         return userService.registerUser(user)
-                .map(u -> "redirect:/login")
+                .map(u -> {
+                    model.addAttribute("ok", "Пользователь '" + u.getUsername() + "' зарегестрирован");
+                    return "register";
+                })
                 .onErrorResume(e -> {
                     model.addAttribute("error", e.getMessage());
                     return Mono.just("register");

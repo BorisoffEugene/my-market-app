@@ -11,11 +11,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.WebSessionServerLogoutHandler;
+import java.net.URI;
 
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -31,17 +35,36 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        return http
+    public RedirectServerLogoutSuccessHandler redirectServerLogoutSuccessHandler() {
+        RedirectServerLogoutSuccessHandler logoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
+        logoutSuccessHandler.setLogoutSuccessUrl(URI.create("/"));
+        return logoutSuccessHandler;
+    }
+
+    @Bean
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, RedirectServerLogoutSuccessHandler redirectServerLogoutSuccessHandler) {
+        http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers( "/", "/images/*", "/items", "items/*", "/login", "/register", "/css/**", "/js/**").permitAll()
+                        .pathMatchers("/", "/login", "/items", "items/*", "images/*", "/register").permitAll()
                         .anyExchange().authenticated()
                 )
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/"))
+                        .authenticationSuccessHandler(
+                                new RedirectServerAuthenticationSuccessHandler("/items")
+                        )
                 )
-                .build();
+                .logout(logout -> logout
+                        // URL страницы выхода
+                        .logoutUrl("/logout")
+                        .logoutSuccessHandler(redirectServerLogoutSuccessHandler)
+                        .logoutHandler(new DelegatingServerLogoutHandler(
+                            new SecurityContextServerLogoutHandler(),
+                            new WebSessionServerLogoutHandler()
+                        ))
+                );
+
+        return http.build();
     }
 }
