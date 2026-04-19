@@ -6,37 +6,37 @@ import java.util.Objects;
 
 @Table(name = "users", schema = "market")
 public class User {
-    private String login;
-    private String pass;
+    private String username;
+    private String password;
 
     public User() {
     }
 
-    public String getLogin() {
-        return login;
+    public String getUsername() {
+        return username;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getPass() {
-        return pass;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPass(String pass) {
-        this.pass = pass;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(login, user.login) && Objects.equals(pass, user.pass);
+        return Objects.equals(username, user.username) && Objects.equals(password, user.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(login, pass);
+        return Objects.hash(username, password);
     }
 }

@@ -81,12 +81,12 @@ comment on column market.cart_items.count is 'Количество товаро�
 create index if not exists idx_cart_items_cart_id on market.cart_items (cart_id);
 create index if not exists idx_cart_items_item_id on market.cart_items (item_id);
 
--- таблица
+-- таблица users
 create table if not exists market.users(
-	login text primary key,
-	pass text not null
+	username text primary key,
+	password text not null
 );
 
 comment on table market.users is 'Список пользователей магазина';
-comment on column market.users.login is 'Логин';
-comment on column market.users.pass is 'Пароль';
+comment on column market.users.username is 'Логин';
+comment on column market.users.password is 'Пароль';

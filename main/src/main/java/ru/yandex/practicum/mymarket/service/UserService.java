@@ -17,7 +17,7 @@ public class UserService {
     }
 
     public Mono<User> registerUser(User user) {
-        user.setPass(passwordEncoder.encode(user.getPass()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 }
