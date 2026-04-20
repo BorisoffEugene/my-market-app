@@ -26,15 +26,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public MapReactiveUserDetailsService userDetailsService() {
-        UserDetails user = User.withUsername("user")
-                .password(passwordEncoder().encode("password"))
-                .roles("USER")
-                .build();
-        return new MapReactiveUserDetailsService(user);
-    }
-
-    @Bean
     public RedirectServerLogoutSuccessHandler redirectServerLogoutSuccessHandler() {
         RedirectServerLogoutSuccessHandler logoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
         logoutSuccessHandler.setLogoutSuccessUrl(URI.create("/"));

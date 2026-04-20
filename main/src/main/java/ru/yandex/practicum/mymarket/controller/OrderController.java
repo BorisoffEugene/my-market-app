@@ -1,5 +1,7 @@
 package ru.yandex.practicum.mymarket.controller;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -16,10 +18,10 @@ public class OrderController {
     }
 
     @GetMapping
-    public Mono<Rendering> findAll() {
+    public Mono<Rendering> findAll(@AuthenticationPrincipal UserDetails userDetails) {
         return Mono.just(
                 Rendering.view("orders")
-                        .modelAttribute("orders", orderService.findAll("user"))//todo
+                        .modelAttribute("orders", orderService.findAll(userDetails.getUsername()))
                         .build()
         );
     }
