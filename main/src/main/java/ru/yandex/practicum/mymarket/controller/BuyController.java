@@ -22,10 +22,10 @@ public class BuyController {
 
     @PostMapping
     public Mono<Rendering> buy() {
-        return paymentService.debit(cartService.total())
+        return paymentService.debit(cartService.total("user")) //todo
                 .flatMap(str -> {
                    if (str.equals("OK"))
-                       return orderService.sold()
+                       return orderService.sold("user") //todo
                                .map(order -> {
                                    boolean newOrder = true;
 
@@ -39,9 +39,9 @@ public class BuyController {
                                            .build();
                                });
                    else
-                       return cartService.total()
+                       return cartService.total("user") //todo
                                .map(total -> Rendering.view("cart")
-                                       .modelAttribute("items", cartService.items())
+                                       .modelAttribute("items", cartService.items("user"))//todo
                                        .modelAttribute("total", total)
                                        .modelAttribute("check", str)
                                        .build());

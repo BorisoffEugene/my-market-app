@@ -10,11 +10,13 @@ public class Cart {
     @Id
     private Long id;
     private String status;
+    private String username;
     private Long total;
 
-    public Cart() {
-        status = "CURRENT";
-        total = 0L;
+    public Cart(String username) {
+        this.status = "CURRENT";
+        this.username = username;
+        this.total = 0L;
     }
 
     public Long getId() {
@@ -25,14 +27,6 @@ public class Cart {
         this.id = id;
     }
 
-    public Long getTotal() {
-        return total;
-    }
-
-    public void setTotal(Long total) {
-        this.total = total;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -41,15 +35,31 @@ public class Cart {
         this.status = status;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Long getTotal() {
+        return total;
+    }
+
+    public void setTotal(Long total) {
+        this.total = total;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Cart cart = (Cart) o;
-        return Objects.equals(id, cart.id) && Objects.equals(status, cart.status) && Objects.equals(total, cart.total);
+        return Objects.equals(id, cart.id) && Objects.equals(status, cart.status) && Objects.equals(username, cart.username) && Objects.equals(total, cart.total);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, status, total);
+        return Objects.hash(id, status, username, total);
     }
 }

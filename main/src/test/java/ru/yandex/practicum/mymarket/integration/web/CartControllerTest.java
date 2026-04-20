@@ -41,8 +41,8 @@ public class CartControllerTest {
                 new ItemDto("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
         ));
 
-        when(cartService.items()).thenReturn(items);
-        when(cartService.total()).thenReturn(Mono.just(5_000L));
+        when(cartService.items("user")).thenReturn(items); //todo
+        when(cartService.total("user")).thenReturn(Mono.just(5_000L)); //todo
 
         webTestClient.get()
                 .uri("/cart/items")
@@ -60,8 +60,8 @@ public class CartControllerTest {
     @Test
     @DisplayName("Получение списка товаров в корзине (товаров нет)")
     void testItems_NotFound() {
-        when(cartService.items()).thenReturn(Flux.fromIterable(new ArrayList<>()));
-        when(cartService.total()).thenReturn(Mono.just(0L));
+        when(cartService.items("user")).thenReturn(Flux.fromIterable(new ArrayList<>())); //todo
+        when(cartService.total("user")).thenReturn(Mono.just(0L)); //todo
 
         webTestClient.get()
                 .uri("/cart/items")
@@ -74,7 +74,7 @@ public class CartControllerTest {
     @Test
     @DisplayName("Изменение количества товара в корзине")
     void testChangeCount() {
-        when(cartService.changeCount("PLUS", 1L)).thenReturn(Mono.empty());
+        when(cartService.changeCount("PLUS", 1L, "user")).thenReturn(Mono.empty()); //todo
 
         webTestClient.post()
                 .uri("/cart/items?id=1&action=PLUS")

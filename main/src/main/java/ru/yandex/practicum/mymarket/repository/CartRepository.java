@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.domain.Cart;
 
 public interface CartRepository extends ReactiveCrudRepository<Cart, Long> {
-    Mono<Cart> findFirstByStatus(String status);
+    Mono<Cart> findFirstByStatusAndUsername(String status, String username);
 
     @Query("""
                 select
@@ -17,12 +17,12 @@ public interface CartRepository extends ReactiveCrudRepository<Cart, Long> {
                     join market.cart_items ci on ci.cart_id = c.id
                     join market.items i on i.id = ci.item_id
                 where
-                    c.status = 'CURRENT'
+                    c.status = 'CURRENT' and c.username = :username
                 """
     )
-    Mono<Long> cartTotal();
+    Mono<Long> cartTotal(String username);
 
     @Modifying
-    @Query("update market.cart set status = 'SOLD' where status = 'CURRENT'")
-    Mono<Void> sold();
+    @Query("update market.cart set status = 'SOLD' where status = 'CURRENT' and username = :username")
+    Mono<Void> sold(String username);
 }

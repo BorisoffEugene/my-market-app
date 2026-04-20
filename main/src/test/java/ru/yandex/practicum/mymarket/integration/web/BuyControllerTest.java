@@ -37,8 +37,8 @@ public class BuyControllerTest {
     void testBy() {
         OrderDto order = new OrderDto(List.of(new OrderItem("Название 11", 1, 500L), new OrderItem("Название 12", 2, 500L)), 1_500L);
         order.setId(1L);
-        when(paymentService.debit(cartService.total())).thenReturn(Mono.just("OK"));
-        when(orderService.sold()).thenReturn(Mono.just(order));
+        when(paymentService.debit(cartService.total("user"))).thenReturn(Mono.just("OK")); //todo
+        when(orderService.sold("user")).thenReturn(Mono.just(order)); //todo
 
         webTestClient.post()
                 .uri("/buy")

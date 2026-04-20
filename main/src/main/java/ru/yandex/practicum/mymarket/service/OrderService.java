@@ -25,8 +25,8 @@ public class OrderService {
         this.orderMapper = orderMapper;
     }
 
-    public Flux<OrderDto> findAll() {
-        return orderRepository.findAll()
+    public Flux<OrderDto> findAll(String username) {
+        return orderRepository.findAllByUsername(username)
                 .flatMap(order ->
                     orderItemRepository.findAllByOrderId(order.getId())
                             .collectList()
@@ -44,11 +44,11 @@ public class OrderService {
     }
 
     @CacheEvict(value = "cart_items", allEntries = true)
-    public Mono<OrderDto> sold() {
-        return cartRepository.cartTotal()
+    public Mono<OrderDto> sold(String username) {
+        return cartRepository.cartTotal(username)
                         .flatMap(total -> orderRepository.save(new Order(total))
                                 .flatMap(order -> orderItemRepository.sold(order.getId())
-                                        .then(cartRepository.sold())
+                                        .then(cartRepository.sold(username))
                                         .then(findById(order.getId()))));
     }
 }

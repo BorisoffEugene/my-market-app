@@ -9,6 +9,7 @@ import java.util.Objects;
 public class Order {
     @Id
     private Long id;
+    private String username;
     private Long totalSum;
 
     public Order() {
@@ -23,12 +24,26 @@ public class Order {
         this.totalSum = totalSum;
     }
 
+    public Order(Long id, String username, Long totalSum) {
+        this.id = id;
+        this.username = username;
+        this.totalSum = totalSum;
+    }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Long getTotalSum() {
@@ -43,11 +58,11 @@ public class Order {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Order order = (Order) o;
-        return Objects.equals(id, order.id) && Objects.equals(totalSum, order.totalSum);
+        return Objects.equals(id, order.id) && Objects.equals(username, order.username) && Objects.equals(totalSum, order.totalSum);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, totalSum);
+        return Objects.hash(id, username, totalSum);
     }
 }

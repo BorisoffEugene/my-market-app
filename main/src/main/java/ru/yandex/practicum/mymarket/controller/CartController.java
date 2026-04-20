@@ -22,15 +22,15 @@ public class CartController {
     public Mono<Rendering> items() {
         return Mono.just(
                 Rendering.view("cart")
-                        .modelAttribute("items", cartService.items())
-                        .modelAttribute("total", cartService.total())
-                        .modelAttribute("check", paymentService.check(cartService.total()))
+                        .modelAttribute("items", cartService.items("user"))//todo
+                        .modelAttribute("total", cartService.total("user"))//todo
+                        .modelAttribute("check", paymentService.check(cartService.total("user")))//todo
                         .build()
         );
     }
 
     @PostMapping
     public Mono<String> doItemAction(@RequestParam Long id, @RequestParam String action) {
-        return cartService.changeCount(action, id).thenReturn("redirect:/cart/items");
+        return cartService.changeCount(action, id, "user").thenReturn("redirect:/cart/items"); //todo
     }
 }

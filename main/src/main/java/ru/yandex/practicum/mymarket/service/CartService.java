@@ -25,19 +25,19 @@ public class CartService {
     }
 
     @Cacheable(value = "cart_items", key = "'all'")
-    public Flux<ItemDto> items() {
-        return cartItemRepository.findCartItems().map(itemMapper::toDto);
+    public Flux<ItemDto> items(String username) {
+        return cartItemRepository.findCartItems(username).map(itemMapper::toDto);
     }
 
     @Cacheable(value = "cart_items", key = "'total'")
-    public Mono<Long> total() {
-        return cartRepository.cartTotal();
+    public Mono<Long> total(String username) {
+        return cartRepository.cartTotal(username);
     }
 
     @CacheEvict(value = "cart_items", allEntries = true)
-    public Mono<Void> changeCount(String action, Long id) {
-        return cartRepository.findFirstByStatus("CURRENT")
-                .switchIfEmpty(cartRepository.save(new Cart()))
+    public Mono<Void> changeCount(String action, Long id, String username) {
+        return cartRepository.findFirstByStatusAndUsername("CURRENT", username)
+                .switchIfEmpty(cartRepository.save(new Cart(username)))
                 .flatMap(cart -> {
                     // Применяем к товару действия (PLUS, MINUS, DELETE)
                     switch (action) {
@@ -63,14 +63,14 @@ public class CartService {
                     }
 
                     // Считаем тотал и сохраняем
-                    cart.setTotal(total().block());
+                    cart.setTotal(total(username).block());
                     if (cart.getTotal().equals(0L)) cart.setStatus("DELETED");
                     return cartRepository.save(cart);
                 })
                 .then();
     }
 
-    public Mono<Void> sold() {
-        return cartRepository.sold();
+    public Mono<Void> sold(String username) {
+        return cartRepository.sold(username);
     }
 }

@@ -14,13 +14,14 @@ public interface OrderItemRepository extends ReactiveCrudRepository<OrderItem, L
     @Query("""
         insert into market.order_items(order_id, title, count, price)
             select
-                :orderId order_id, i.title, ci.count, i.price
+                o.id order_id, i.title, ci.count, i.price
             from
-                market.cart c
+                market.orders o
+                join market.cart c on c.status = 'CURRENT' and c.username = o.username
                 join market.cart_items ci on ci.cart_id = c.id
                 join market.items i on i.id = ci.item_id
             where
-                c.status = 'CURRENT'
+                o.id = :orderId
         """)
     Mono<Void> sold(Long orderId);
 }

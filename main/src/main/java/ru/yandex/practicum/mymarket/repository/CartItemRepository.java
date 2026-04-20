@@ -18,8 +18,8 @@ public interface CartItemRepository extends ReactiveCrudRepository<CartItem, Lon
                         join market.cart_items ci on ci.cart_id = c.id
                         join market.items i on i.id = ci.item_id
                     where
-                        c.status = 'CURRENT'
+                        c.status = 'CURRENT' and c.username = :username
                     """
     )
-    Flux<Item> findCartItems();
+    Flux<Item> findCartItems(String username);
 }

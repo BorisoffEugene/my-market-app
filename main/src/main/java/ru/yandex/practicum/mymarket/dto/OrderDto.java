@@ -7,11 +7,19 @@ import java.util.Objects;
 
 public class OrderDto {
     private Long id;
+    private String username;
     private List<OrderItem> items;
     private Long totalSum;
 
     public OrderDto(Long id, List<OrderItem> items, Long totalSum) {
         this.id = id;
+        this.items = items;
+        this.totalSum = totalSum;
+    }
+
+    public OrderDto(Long id, String username, List<OrderItem> items, Long totalSum) {
+        this.id = id;
+        this.username = username;
         this.items = items;
         this.totalSum = totalSum;
     }
@@ -27,6 +35,14 @@ public class OrderDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public List<OrderItem> getItems() {
@@ -49,11 +65,11 @@ public class OrderDto {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         OrderDto orderDto = (OrderDto) o;
-        return Objects.equals(id, orderDto.id) && Objects.equals(items, orderDto.items) && Objects.equals(totalSum, orderDto.totalSum);
+        return Objects.equals(id, orderDto.id) && Objects.equals(username, orderDto.username) && Objects.equals(items, orderDto.items) && Objects.equals(totalSum, orderDto.totalSum);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, items, totalSum);
+        return Objects.hash(id, username, items, totalSum);
     }
 }

@@ -13,10 +13,10 @@ public class OrderMapper {
     }
 
     public OrderDto toDto(Order order, List<OrderItem> items) {
-        return new OrderDto(order.getId(), items, order.getTotalSum());
+        return new OrderDto(order.getId(), order.getUsername(), items, order.getTotalSum());
     }
 
     public Order toEntity(OrderDto orderDto) {
-        return new Order(orderDto.getId(), orderDto.getTotalSum());
+        return new Order(orderDto.getId(), orderDto.getUsername(), orderDto.getTotalSum());
     }
 }

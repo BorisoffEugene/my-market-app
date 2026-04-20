@@ -38,7 +38,7 @@ public class OrderControllerTest {
                 new OrderDto(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L),
                 new OrderDto(List.of(new OrderItem("Название 21", 5, 3_000L), new OrderItem("Название 22", 3, 5_000L)), 30_000L)
         ));
-        when(orderService.findAll()).thenReturn(orders);
+        when(orderService.findAll("user")).thenReturn(orders); // todo
 
         webTestClient.get()
                 .uri("/orders")
@@ -56,7 +56,7 @@ public class OrderControllerTest {
     @Test
     @DisplayName("Получение списка заказов (заказов нет)")
     void testFindAll_NotFound() {
-        when(orderService.findAll()).thenReturn(Flux.fromIterable(new ArrayList<>()));
+        when(orderService.findAll("user")).thenReturn(Flux.fromIterable(new ArrayList<>())); //todo
 
         webTestClient.get()
                 .uri("/orders")
