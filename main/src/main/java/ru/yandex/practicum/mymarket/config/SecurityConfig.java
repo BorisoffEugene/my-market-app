@@ -17,6 +17,8 @@ import org.springframework.security.web.server.authentication.logout.SecurityCon
 import org.springframework.security.web.server.authentication.logout.WebSessionServerLogoutHandler;
 import java.net.URI;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
@@ -47,14 +49,14 @@ public class SecurityConfig {
                         )
                 )
                 .logout(logout -> logout
-                        // URL страницы выхода
                         .logoutUrl("/logout")
                         .logoutSuccessHandler(redirectServerLogoutSuccessHandler)
                         .logoutHandler(new DelegatingServerLogoutHandler(
                             new SecurityContextServerLogoutHandler(),
                             new WebSessionServerLogoutHandler()
                         ))
-                );
+                )
+                .oauth2Client(withDefaults());
 
         return http.build();
     }
