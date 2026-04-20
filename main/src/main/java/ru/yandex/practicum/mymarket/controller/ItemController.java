@@ -1,8 +1,10 @@
 package ru.yandex.practicum.mymarket.controller;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -87,7 +89,8 @@ public class ItemController {
             @RequestParam(defaultValue = "NO") String sort,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "5") int pageSize,
-            @RequestParam String action
+            @RequestParam String action,
+            @AuthenticationPrincipal UserDetails userDetails
     ){
         String redirectUrl = UriComponentsBuilder.fromPath("/items")
                 .queryParam("search", search)
@@ -96,11 +99,11 @@ public class ItemController {
                 .queryParam("pageSize", pageSize)
                 .toUriString();
 
-        return cartService.changeCount(action, id, "user").thenReturn("redirect:" + redirectUrl); //todo
+        return cartService.changeCount(action, id, userDetails.getUsername()).thenReturn("redirect:" + redirectUrl);
     }
 
     @PostMapping("/{id}")
-    public Mono<String> doItemAction(@PathVariable Long id, @RequestParam String action) {
-        return cartService.changeCount(action, id, "user").thenReturn("redirect:/items/" + id); //todo
+    public Mono<String> doItemAction(@PathVariable Long id, @RequestParam String action, @AuthenticationPrincipal UserDetails userDetails) {
+        return cartService.changeCount(action, id, userDetails.getUsername()).thenReturn("redirect:/items/" + id);
     }
 }
