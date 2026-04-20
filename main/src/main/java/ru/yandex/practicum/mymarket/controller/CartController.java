@@ -26,7 +26,7 @@ public class CartController {
                 Rendering.view("cart")
                         .modelAttribute("items", cartService.items(userDetails != null ? userDetails.getUsername() : null))
                         .modelAttribute("total", cartService.total(userDetails != null ? userDetails.getUsername() : null))
-                        .modelAttribute("check", "OK"/*paymentService.check(cartService.total(userDetails.getUsername()))*/) //todo
+                        .modelAttribute("check", paymentService.check(cartService.total(userDetails != null ? userDetails.getUsername() : null)))
                         .build()
         );
     }
