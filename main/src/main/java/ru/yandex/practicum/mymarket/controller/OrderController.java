@@ -21,7 +21,7 @@ public class OrderController {
     public Mono<Rendering> findAll(@AuthenticationPrincipal UserDetails userDetails) {
         return Mono.just(
                 Rendering.view("orders")
-                        .modelAttribute("orders", orderService.findAll(userDetails.getUsername()))
+                        .modelAttribute("orders", orderService.findAll(userDetails != null ? userDetails.getUsername() : null))
                         .build()
         );
     }

@@ -35,13 +35,13 @@ public class ItemService {
         return itemRepository.deleteById(id);
     }
 
-    @Cacheable(value = "items", key = "'byId:' + #id")
-    public Mono<ItemDto> findById(Long id) {
-        return itemRepository.findById(id).map(itemMapper::toDto);
+    @Cacheable(value = "items", key = "'byId:' + #id + 'user:' + #username")
+    public Mono<ItemDto> findById(Long id, String username) {
+        return itemRepository.findById(id, username).map(itemMapper::toDto);
     }
 
-    @Cacheable(value = "items", key = "'byFiltr_search:' + #search + ':sort:' + #sortType + ':page:' + #pageNumber + ':size:' + #pageSize")
-    public Mono<Page<ItemDto>> findByFiltr(String search, String sortType, int pageNumber, int pageSize) {
+    @Cacheable(value = "items", key = "'byFiltr_search:' + #search + ':sort:' + #sortType + ':page:' + #pageNumber + ':size:' + #pageSize + 'user:' + #username")
+    public Mono<Page<ItemDto>> findByFiltr(String search, String sortType, int pageNumber, int pageSize, String username) {
         Sort sort = switch (sortType) {
             case "ALPHA" -> Sort.by("title");
             case "PRICE" -> Sort.by("price");
@@ -50,7 +50,7 @@ public class ItemService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        return itemRepository.findByFiltr(search, pageable)
+        return itemRepository.findByFiltr(search, pageable, username)
                 .map(itemMapper::toDto)
                 .collectList()
                 .zipWith(itemRepository.countByFiltr(search))

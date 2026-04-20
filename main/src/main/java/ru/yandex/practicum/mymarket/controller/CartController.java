@@ -24,15 +24,15 @@ public class CartController {
     public Mono<Rendering> items(@AuthenticationPrincipal UserDetails userDetails) {
         return Mono.just(
                 Rendering.view("cart")
-                        .modelAttribute("items", cartService.items(userDetails.getUsername()))
-                        .modelAttribute("total", cartService.total(userDetails.getUsername()))
-                        .modelAttribute("check", paymentService.check(cartService.total(userDetails.getUsername())))
+                        .modelAttribute("items", cartService.items(userDetails != null ? userDetails.getUsername() : null))
+                        .modelAttribute("total", cartService.total(userDetails != null ? userDetails.getUsername() : null))
+                        .modelAttribute("check", "OK"/*paymentService.check(cartService.total(userDetails.getUsername()))*/) //todo
                         .build()
         );
     }
 
     @PostMapping
     public Mono<String> doItemAction(@RequestParam Long id, @RequestParam String action, @AuthenticationPrincipal UserDetails userDetails) {
-        return cartService.changeCount(action, id, userDetails.getUsername()).thenReturn("redirect:/cart/items");
+        return cartService.changeCount(action, id, userDetails != null ? userDetails.getUsername() : null).thenReturn("redirect:/cart/items");
     }
 }

@@ -35,9 +35,10 @@ public class ItemController {
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "NO") String sort,
             @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "5") int pageSize
+            @RequestParam(defaultValue = "5") int pageSize,
+            @AuthenticationPrincipal UserDetails userDetails
     ){
-        return itemService.findByFiltr(search, sort, pageNumber, pageSize)
+        return itemService.findByFiltr(search, sort, pageNumber, pageSize, userDetails != null ? userDetails.getUsername() : null)
                 .flatMap(paging -> {
                     List<ItemDto> content = new ArrayList<>(paging.getContent());
 
@@ -67,8 +68,8 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Rendering> getItemById(@PathVariable Long id) {
-        return itemService.findById(id)
+    public Mono<Rendering> getItemById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        return itemService.findById(id, userDetails != null ? userDetails.getUsername() : null)
                 .flatMap(item -> ReactiveSecurityContextHolder.getContext()
                         .map(SecurityContext::getAuthentication)
                         .map(Authentication::isAuthenticated)

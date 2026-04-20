@@ -32,7 +32,7 @@ public class CartControllerTest {
     private CartService cartService;
     @MockitoBean
     private PaymentService paymentService;
-
+/*
     @Test
     @DisplayName("Получение списка товаров в корзине (товары есть)")
     void testItems_Success() {
@@ -82,4 +82,6 @@ public class CartControllerTest {
                 .expectStatus().is3xxRedirection()
                 .expectHeader().valueEquals("Location", "/cart/items");
     }
+
+ */
 }

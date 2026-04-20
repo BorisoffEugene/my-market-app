@@ -24,10 +24,10 @@ public class BuyController {
 
     @PostMapping
     public Mono<Rendering> buy(@AuthenticationPrincipal UserDetails userDetails) {
-        return paymentService.debit(cartService.total(userDetails.getUsername()))
+        return paymentService.debit(cartService.total(userDetails != null ? userDetails.getUsername() : null))
                 .flatMap(str -> {
                    if (str.equals("OK"))
-                       return orderService.sold(userDetails.getUsername())
+                       return orderService.sold(userDetails != null ? userDetails.getUsername() : null)
                                .map(order -> {
                                    boolean newOrder = true;
 
@@ -41,9 +41,9 @@ public class BuyController {
                                            .build();
                                });
                    else
-                       return cartService.total(userDetails.getUsername())
+                       return cartService.total(userDetails != null ? userDetails.getUsername() : null)
                                .map(total -> Rendering.view("cart")
-                                       .modelAttribute("items", cartService.items(userDetails.getUsername()))
+                                       .modelAttribute("items", cartService.items(userDetails != null ? userDetails.getUsername() : null))
                                        .modelAttribute("total", total)
                                        .modelAttribute("check", str)
                                        .build());

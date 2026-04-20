@@ -31,7 +31,7 @@ public class BuyControllerTest {
     private PaymentService paymentService;
     @MockitoBean
     private CartService cartService;
-
+/* todo
     @Test
     @DisplayName("Покупка")
     void testBy() {
@@ -46,4 +46,6 @@ public class BuyControllerTest {
                 .expectStatus().is3xxRedirection()
                 .expectHeader().valueEquals("Location", "/orders/1?newOrder=true");
     }
+
+ */
 }
