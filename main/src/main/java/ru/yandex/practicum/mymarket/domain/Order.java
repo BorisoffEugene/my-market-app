@@ -30,6 +30,11 @@ public class Order {
         this.totalSum = totalSum;
     }
 
+    public Order(String username, Long totalSum) {
+        this.username = username;
+        this.totalSum = totalSum;
+    }
+
     public Long getId() {
         return id;
     }

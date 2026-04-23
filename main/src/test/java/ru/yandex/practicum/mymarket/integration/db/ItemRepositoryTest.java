@@ -25,7 +25,7 @@ public class ItemRepositoryTest {
 
     private Item item1;
     private Item item2;
-/* todo
+
     @BeforeEach
     void beforeEach() {
         itemRepository.deleteAll().block();
@@ -102,7 +102,7 @@ public class ItemRepositoryTest {
         String search = "Название";
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
 
-        StepVerifier.create(itemRepository.findByFiltr(search, pageable))
+        StepVerifier.create(itemRepository.findByFiltr(search, pageable, "user"))
                 .assertNext(item -> {
                     assertThat(item.getTitle().equals(item1.getTitle()));
                 })
@@ -116,10 +116,8 @@ public class ItemRepositoryTest {
         String search = "Несуществующее название";
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
 
-        StepVerifier.create(itemRepository.findByFiltr(search, pageable))
+        StepVerifier.create(itemRepository.findByFiltr(search, pageable, "user"))
                 .expectNextCount(0)
                 .verifyComplete();
     }
-
- */
 }

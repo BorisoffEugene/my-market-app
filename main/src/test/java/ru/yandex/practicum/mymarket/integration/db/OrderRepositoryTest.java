@@ -4,11 +4,15 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import ru.yandex.practicum.mymarket.config.RepositoryTestConfig;
 import ru.yandex.practicum.mymarket.domain.Order;
+import ru.yandex.practicum.mymarket.domain.User;
 import ru.yandex.practicum.mymarket.repository.OrderRepository;
+import ru.yandex.practicum.mymarket.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,21 +23,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OrderRepositoryTest {
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private Order order1;
     private Order order2;
-/* todo
+
     @BeforeEach
     void beforeEach() {
+        userRepository.deleteAll().block();
+        userRepository.save(new User("user", passwordEncoder.encode("password"))).block();
+
         orderRepository.deleteAll().block();
-        order1 = orderRepository.save(new Order(5_000L)).block();
-        order2 = orderRepository.save(new Order(30_000L)).block();
+        order1 = orderRepository.save(new Order("user", 5_000L)).block();
+        order2 = orderRepository.save(new Order("user", 30_000L)).block();
     }
 
     @Test
     @DisplayName("Получение списка заказов (заказы есть)")
     void testFindAll_Success() {
-        StepVerifier.create(orderRepository.findAll())
+        StepVerifier.create(orderRepository.findAllByUsername("user"))
                 .assertNext(order -> {
                     assertThat(order.getTotalSum().equals(order1.getTotalSum()));
                 })
@@ -46,7 +57,7 @@ public class OrderRepositoryTest {
     void testFindAll_NotFound() {
         orderRepository.deleteAll().block();
 
-        StepVerifier.create(orderRepository.findAll())
+        StepVerifier.create(orderRepository.findAllByUsername("user"))
                 .expectNextCount(0)
                 .verifyComplete();
     }
@@ -72,7 +83,7 @@ public class OrderRepositoryTest {
     @Test
     @DisplayName("Сохранение заказа")
     void testSave() {
-        Mono<Order> order = orderRepository.save(new Order(15_000L));
+        Mono<Order> order = orderRepository.save(new Order("user",15_000L));
 
         StepVerifier.create(order)
                 .expectNextMatches(savedOrder ->
@@ -80,10 +91,8 @@ public class OrderRepositoryTest {
                 )
                 .verifyComplete();
 
-        StepVerifier.create(orderRepository.findAll())
+        StepVerifier.create(orderRepository.findAllByUsername("user"))
                 .expectNextCount(3)
                 .verifyComplete();
     }
-
- */
 }
