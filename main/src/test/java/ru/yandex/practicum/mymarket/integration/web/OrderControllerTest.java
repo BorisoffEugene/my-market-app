@@ -2,15 +2,16 @@ package ru.yandex.practicum.mymarket.integration.web;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.config.RepositoryTestConfig;
-import ru.yandex.practicum.mymarket.controller.OrderController;
 import ru.yandex.practicum.mymarket.domain.OrderItem;
 import ru.yandex.practicum.mymarket.dto.OrderDto;
 import ru.yandex.practicum.mymarket.service.OrderService;
@@ -20,25 +21,42 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-@WebFluxTest(OrderController.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient
 @Import(RepositoryTestConfig.class)
 @DisplayName("Интеграционное (WEB) тестирование заказов")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class OrderControllerTest {
- /*   @Autowired
+    @Autowired
     private WebTestClient webTestClient;
 
     @MockitoBean
     private OrderService orderService;
- todo
+
     @Test
+    @DisplayName("Проверка неавторизованного пользователя")
+    void shouldReturn3xx_WhenUserNotFound() {
+        Flux<OrderDto> orders = Flux.fromIterable(List.of(
+                new OrderDto(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L),
+                new OrderDto(List.of(new OrderItem("Название 21", 5, 3_000L), new OrderItem("Название 22", 3, 5_000L)), 30_000L)
+        ));
+        when(orderService.findAll("user")).thenReturn(orders);
+
+        webTestClient.get()
+                .uri("/orders")
+                .exchange()
+                .expectStatus().is3xxRedirection();
+    }
+
+    @Test
+    @WithMockUser(username = "user")
     @DisplayName("Получение списка заказов (заказы есть)")
     void testFindAll_Success() {
         Flux<OrderDto> orders = Flux.fromIterable(List.of(
                 new OrderDto(List.of(new OrderItem("Название 11", 1, 1_000L), new OrderItem("Название 12", 2, 2_000L)), 5_000L),
                 new OrderDto(List.of(new OrderItem("Название 21", 5, 3_000L), new OrderItem("Название 22", 3, 5_000L)), 30_000L)
         ));
-        when(orderService.findAll("user")).thenReturn(orders); // todo
+        when(orderService.findAll("user")).thenReturn(orders);
 
         webTestClient.get()
                 .uri("/orders")
@@ -54,9 +72,10 @@ public class OrderControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "user")
     @DisplayName("Получение списка заказов (заказов нет)")
     void testFindAll_NotFound() {
-        when(orderService.findAll("user")).thenReturn(Flux.fromIterable(new ArrayList<>())); //todo
+        when(orderService.findAll("user")).thenReturn(Flux.fromIterable(new ArrayList<>()));
 
         webTestClient.get()
                 .uri("/orders")
@@ -67,6 +86,7 @@ public class OrderControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "user")
     @DisplayName("Получение заказа (заказ есть)")
     void testFindById_Success() {
         Long id = 1L;
@@ -88,6 +108,7 @@ public class OrderControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "user")
     @DisplayName("Получение заказа (заказа нет)")
     void testFindById_NotFound() {
         when(orderService.findById(-1L)).thenReturn(Mono.empty());
@@ -98,6 +119,4 @@ public class OrderControllerTest {
                 .expectStatus().is3xxRedirection()
                 .expectHeader().valueEquals("Location", "/orders");
     }
-
- */
 }

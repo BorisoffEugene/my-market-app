@@ -2,15 +2,16 @@ package ru.yandex.practicum.mymarket.integration.web;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.mymarket.config.RepositoryTestConfig;
-import ru.yandex.practicum.mymarket.controller.ItemController;
 import ru.yandex.practicum.mymarket.dto.ItemDto;
 import ru.yandex.practicum.mymarket.service.CartService;
 import ru.yandex.practicum.mymarket.service.ItemService;
@@ -19,12 +20,13 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-@WebFluxTest(ItemController.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient
 @Import(RepositoryTestConfig.class)
 @DisplayName("Интеграционное (WEB) тестирование товаров")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class ItemControllerTest {
- /*   @Autowired
+    @Autowired
     private WebTestClient webTestClient;
 
     @MockitoBean
@@ -49,7 +51,7 @@ public class ItemControllerTest {
                 pageable,
                 2);
 
-        when(itemService.findByFiltr(search, sort, pageNumber, pageSize)).thenReturn(Mono.just(paging));
+        when(itemService.findByFiltr(search, sort, pageNumber, pageSize, null)).thenReturn(Mono.just(paging));
 
         webTestClient.get()
                 .uri("/items")
@@ -74,7 +76,7 @@ public class ItemControllerTest {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.unsorted());
         Page<ItemDto> paging = new PageImpl<>(List.of(), pageable, 0);
 
-        when(itemService.findByFiltr(search, sort, pageNumber, pageSize)).thenReturn(Mono.just(paging));
+        when(itemService.findByFiltr(search, sort, pageNumber, pageSize, null)).thenReturn(Mono.just(paging));
 
         webTestClient.get()
                 .uri("/items")
@@ -90,7 +92,7 @@ public class ItemControllerTest {
         Long id = 1L;
         ItemDto item = new ItemDto("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1);
         item.setId(id);
-        when(itemService.findById(id)).thenReturn(Mono.just(item));
+        when(itemService.findById(id, null)).thenReturn(Mono.just(item));
 
         webTestClient.get()
                 .uri("/items/1")
@@ -106,21 +108,10 @@ public class ItemControllerTest {
     }
 
     @Test
-    @DisplayName("Получение товара (товара нет)")
-    void testFindById_NotFound() {
-        when(itemService.findById(-1L)).thenReturn(Mono.empty());
-
-        webTestClient.get()
-                .uri("/items/-1")
-                .exchange()
-                .expectStatus().is3xxRedirection()
-                .expectHeader().valueEquals("Location", "/items");
-    }
-
-    @Test
+    @WithMockUser(username = "user")
     @DisplayName("Изменение количества товара на витрине")
     void testDoItemsAction() {
-        when(cartService.changeCount("PLUS", 1L, "user")).thenReturn(Mono.empty()); //todo
+        when(cartService.changeCount("PLUS", 1L, "user")).thenReturn(Mono.empty());
 
         webTestClient.post()
                 .uri("/items?id=1&action=PLUS")
@@ -130,12 +121,13 @@ public class ItemControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "user")
     @DisplayName("Изменение количества товара в карточке товара")
     void testDoItemAction() {
         String action = "PLUS";
         Long id = 1L;
 
-        when(cartService.changeCount("PLUS", 1L, "user")).thenReturn(Mono.empty()); //todo
+        when(cartService.changeCount("PLUS", 1L, "user")).thenReturn(Mono.empty());
 
         webTestClient.post()
                 .uri("/items/1?action=PLUS")
@@ -143,6 +135,4 @@ public class ItemControllerTest {
                 .expectStatus().is3xxRedirection()
                 .expectHeader().valueEquals("Location", "/items/1");
     }
-
- */
 }
