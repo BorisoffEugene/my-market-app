@@ -67,9 +67,12 @@ public class CartService {
                     }
 
                     // Считаем тотал и сохраняем
-                    cart.setTotal(total(username).block());
-                    if (cart.getTotal().equals(0L)) cart.setStatus("DELETED");
-                    return cartRepository.save(cart);
+                    return total(username)
+                            .flatMap(total -> {
+                                cart.setTotal(total);
+                                if (cart.getTotal().equals(0L)) cart.setStatus("DELETED");
+                                return cartRepository.save(cart);
+                            });
                 })
                 .then();
     }

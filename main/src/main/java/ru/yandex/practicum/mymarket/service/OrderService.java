@@ -50,7 +50,7 @@ public class OrderService {
     })
     public Mono<OrderDto> sold(String username) {
         return cartRepository.cartTotal(username)
-                        .flatMap(total -> orderRepository.save(new Order(total))
+                        .flatMap(total -> orderRepository.save(new Order(username, total))
                                 .flatMap(order -> orderItemRepository.sold(order.getId())
                                         .then(cartRepository.sold(username))
                                         .then(findById(order.getId()))));
