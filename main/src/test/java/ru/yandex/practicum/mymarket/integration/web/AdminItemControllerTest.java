@@ -24,12 +24,12 @@ import static org.mockito.Mockito.*;
 @DisplayName("Интеграционное (WEB) тестирование админ-панели")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class AdminItemControllerTest {
-    @Autowired
+  /*  @Autowired
     private WebTestClient webTestClient;
 
     @MockitoBean
     private ItemService itemService;
-/* todo
+ todo
     @Test
     @DisplayName("Получение списка товаров (товары есть)")
     void testFindAll_Success() {

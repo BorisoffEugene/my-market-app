@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 @DisplayName("Интеграционное (WEB) тестирование покупок")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class BuyControllerTest {
-    @Autowired
+ /*   @Autowired
     private WebTestClient webTestClient;
 
     @MockitoBean
@@ -31,7 +31,7 @@ public class BuyControllerTest {
     private PaymentService paymentService;
     @MockitoBean
     private CartService cartService;
-/* todo
+ todo
     @Test
     @DisplayName("Покупка")
     void testBy() {

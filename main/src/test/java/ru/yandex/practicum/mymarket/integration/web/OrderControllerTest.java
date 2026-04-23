@@ -25,12 +25,12 @@ import static org.mockito.Mockito.*;
 @DisplayName("Интеграционное (WEB) тестирование заказов")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class OrderControllerTest {
-    @Autowired
+ /*   @Autowired
     private WebTestClient webTestClient;
 
     @MockitoBean
     private OrderService orderService;
-/* todo
+ todo
     @Test
     @DisplayName("Получение списка заказов (заказы есть)")
     void testFindAll_Success() {

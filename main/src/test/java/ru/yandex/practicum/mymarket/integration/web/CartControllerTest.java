@@ -25,14 +25,14 @@ import static org.mockito.Mockito.*;
 @DisplayName("Интеграционное (WEB) тестирование корзины")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class CartControllerTest {
-    @Autowired
+/*    @Autowired
     private WebTestClient webTestClient;
 
     @MockitoBean
     private CartService cartService;
     @MockitoBean
     private PaymentService paymentService;
-/*
+
     @Test
     @DisplayName("Получение списка товаров в корзине (товары есть)")
     void testItems_Success() {

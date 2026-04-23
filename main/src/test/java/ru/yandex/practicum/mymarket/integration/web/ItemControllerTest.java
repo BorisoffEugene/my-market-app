@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 @DisplayName("Интеграционное (WEB) тестирование товаров")
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class ItemControllerTest {
-    @Autowired
+ /*   @Autowired
     private WebTestClient webTestClient;
 
     @MockitoBean
@@ -32,7 +32,7 @@ public class ItemControllerTest {
 
     @MockitoBean
     private CartService cartService;
-/*
+
     @Test
     @DisplayName("Получение списка товаров + поиск + пагинация (товары есть)")
     void testFindByFiltr_Success() {

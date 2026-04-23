@@ -8,3 +8,16 @@ spring:
   data:
     r2dbc:
       initialization-mode: always
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: main
+            client-secret: miy9KiOJVhiF8DZcDGltXFaQwMyeCJmU
+            authorization-grant-type: client_credentials
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8082/realms/my-market-app
