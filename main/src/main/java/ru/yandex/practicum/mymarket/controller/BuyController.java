@@ -1,5 +1,7 @@
 package ru.yandex.practicum.mymarket.controller;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -21,11 +23,11 @@ public class BuyController {
     }
 
     @PostMapping
-    public Mono<Rendering> buy() {
-        return paymentService.debit(cartService.total())
+    public Mono<Rendering> buy(@AuthenticationPrincipal UserDetails userDetails) {
+        return paymentService.debit(cartService.total(userDetails != null ? userDetails.getUsername() : null))
                 .flatMap(str -> {
                    if (str.equals("OK"))
-                       return orderService.sold()
+                       return orderService.sold(userDetails != null ? userDetails.getUsername() : null)
                                .map(order -> {
                                    boolean newOrder = true;
 
@@ -39,9 +41,9 @@ public class BuyController {
                                            .build();
                                });
                    else
-                       return cartService.total()
+                       return cartService.total(userDetails != null ? userDetails.getUsername() : null)
                                .map(total -> Rendering.view("cart")
-                                       .modelAttribute("items", cartService.items())
+                                       .modelAttribute("items", cartService.items(userDetails != null ? userDetails.getUsername() : null))
                                        .modelAttribute("total", total)
                                        .modelAttribute("check", str)
                                        .build());

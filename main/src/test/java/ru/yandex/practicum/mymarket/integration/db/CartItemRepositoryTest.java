@@ -4,14 +4,18 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.test.StepVerifier;
 import ru.yandex.practicum.mymarket.config.RepositoryTestConfig;
 import ru.yandex.practicum.mymarket.domain.Cart;
 import ru.yandex.practicum.mymarket.domain.CartItem;
 import ru.yandex.practicum.mymarket.domain.Item;
+import ru.yandex.practicum.mymarket.domain.User;
 import ru.yandex.practicum.mymarket.repository.CartItemRepository;
 import ru.yandex.practicum.mymarket.repository.CartRepository;
 import ru.yandex.practicum.mymarket.repository.ItemRepository;
+import ru.yandex.practicum.mymarket.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,15 +30,23 @@ public class CartItemRepositoryTest {
     private CartRepository cartRepository;
     @Autowired
     private ItemRepository itemRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private Item item;
 
     @BeforeEach
     void beforeEach() {
+        userRepository.deleteAll().block();
+        userRepository.save(new User("user", passwordEncoder.encode("password"))).block();
+
         itemRepository.deleteAll().block();
         item = itemRepository.save(new Item("Название 1", "Описание 1", "/images/1.jpg", 1_000L, 1)).block();
+
         cartRepository.deleteAll().block();
-        Cart cart = cartRepository.save(new Cart()).block();
+        Cart cart = cartRepository.save(new Cart("user")).block();
         CartItem cartItem = cartItemRepository.save(new CartItem(cart.getId(), item.getId())).block();
         cartItem.incCount();
         cartItemRepository.save(cartItem).block();
@@ -45,7 +57,7 @@ public class CartItemRepositoryTest {
     @Test
     @DisplayName("Получение товаров в корзине (товары есть)")
     void testFindCartItems_Success() {
-        StepVerifier.create(cartItemRepository.findCartItems())
+        StepVerifier.create(cartItemRepository.findCartItems("user"))
                 .assertNext(findItem -> {
                     assertThat(findItem.getTitle().equals(item.getTitle()));
                 })
@@ -56,7 +68,7 @@ public class CartItemRepositoryTest {
     @DisplayName("Получение товаров в корзине (товаров нет)")
     void testFindCartItems_NotFound() {
         cartRepository.deleteAll().block();
-        StepVerifier.create(cartItemRepository.findCartItems())
+        StepVerifier.create(cartItemRepository.findCartItems("user"))
                 .expectNextCount(0)
                 .verifyComplete();
     }

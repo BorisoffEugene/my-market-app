@@ -2,6 +2,7 @@ package ru.yandex.practicum.mymarket.service;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,20 +25,23 @@ public class CartService {
         this.itemMapper = itemMapper;
     }
 
-    @Cacheable(value = "cart_items", key = "'all'")
-    public Flux<ItemDto> items() {
-        return cartItemRepository.findCartItems().map(itemMapper::toDto);
+    @Cacheable(value = "cart_items", key = "'all:' + #username")
+    public Flux<ItemDto> items(String username) {
+        return cartItemRepository.findCartItems(username).map(itemMapper::toDto);
     }
 
-    @Cacheable(value = "cart_items", key = "'total'")
-    public Mono<Long> total() {
-        return cartRepository.cartTotal();
+    @Cacheable(value = "cart_items", key = "'total:' + #username")
+    public Mono<Long> total(String username) {
+        return cartRepository.cartTotal(username);
     }
 
-    @CacheEvict(value = "cart_items", allEntries = true)
-    public Mono<Void> changeCount(String action, Long id) {
-        return cartRepository.findFirstByStatus("CURRENT")
-                .switchIfEmpty(cartRepository.save(new Cart()))
+    @Caching(evict = {
+            @CacheEvict(value = "cart_items", key = "'all:' + #username"),
+            @CacheEvict(value = "cart_items", key = "'total:' + #username")
+    })
+    public Mono<Void> changeCount(String action, Long id, String username) {
+        return cartRepository.findFirstByStatusAndUsername("CURRENT", username)
+                .switchIfEmpty(cartRepository.save(new Cart(username)))
                 .flatMap(cart -> {
                     // Применяем к товару действия (PLUS, MINUS, DELETE)
                     switch (action) {
@@ -63,14 +67,17 @@ public class CartService {
                     }
 
                     // Считаем тотал и сохраняем
-                    cart.setTotal(total().block());
-                    if (cart.getTotal().equals(0L)) cart.setStatus("DELETED");
-                    return cartRepository.save(cart);
+                    return total(username)
+                            .flatMap(total -> {
+                                cart.setTotal(total);
+                                if (cart.getTotal().equals(0L)) cart.setStatus("DELETED");
+                                return cartRepository.save(cart);
+                            });
                 })
                 .then();
     }
 
-    public Mono<Void> sold() {
-        return cartRepository.sold();
+    public Mono<Void> sold(String username) {
+        return cartRepository.sold(username);
     }
 }

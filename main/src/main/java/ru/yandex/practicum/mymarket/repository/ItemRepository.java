@@ -13,7 +13,7 @@ public interface ItemRepository extends ReactiveCrudRepository<Item, Long> {
                     	i.id, i.title, i.description, i.price, i.img_path, coalesce(ci.count, 0) count
                     from
                     	market.items i
-                    	left join market.cart c on c.status = 'CURRENT'
+                    	left join market.cart c on c.status = 'CURRENT' and c.username = :username
                     	left join market.cart_items ci on ci.cart_id = c.id and ci.item_id = i.id
                     where
                     	i.title ilike '%'||:search||'%' or i.description ilike '%'||:search||'%'
@@ -25,7 +25,7 @@ public interface ItemRepository extends ReactiveCrudRepository<Item, Long> {
                     limit :#{#pageable.pageSize} offset :#{#pageable.offset}
                     """
     )
-    Flux<Item> findByFiltr(String search, Pageable pageable);
+    Flux<Item> findByFiltr(String search, Pageable pageable, String username);
 
     @Query("""
                     select
@@ -43,11 +43,11 @@ public interface ItemRepository extends ReactiveCrudRepository<Item, Long> {
                     	i.id, i.title, i.description, i.price, i.img_path, coalesce(ci.count, 0) count
                     from
                     	market.items i
-                    	left join market.cart c on c.status = 'CURRENT'
+                    	left join market.cart c on c.status = 'CURRENT' and c.username = :username
                     	left join market.cart_items ci on ci.cart_id = c.id and ci.item_id = i.id
                     where
                     	i.id = :id
                     """
     )
-    Mono<Item> findById(Long id);
+    Mono<Item> findById(Long id, String username);
 }

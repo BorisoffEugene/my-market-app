@@ -22,15 +22,29 @@ comment on column market.items.count is 'Количество товаров в 
 create index if not exists idx_items_title on market.items (title);
 create index if not exists idx_items_description on market.items (description);
 
+-- таблица users
+create table if not exists market.users(
+	username varchar primary key,
+	password varchar not null
+);
+
+comment on table market.users is 'Список пользователей магазина';
+comment on column market.users.username is 'Логин';
+comment on column market.users.password is 'Пароль';
+
 -- таблица orders
 create table if not exists market.orders(
 	id bigserial primary key,
+	username varchar not null references market.users(username) on delete cascade,
 	total_sum bigint not null check(total_sum > 0)
 );
 
 comment on table market.orders is 'Заказы';
 comment on column market.orders.id is 'ID записи';
+comment on column market.orders.username is 'Пользователь - владелец заказа (users.username)';
 comment on column market.orders.total_sum is 'Суммарная стоимость заказа';
+
+create index if not exists idx_orders_username on market.orders (username);
 
 -- таблица order_items
 create table if not exists market.order_items(
@@ -54,15 +68,18 @@ create index if not exists idx_order_items_order_id on market.order_items (order
 create table if not exists market.cart(
 	id bigserial primary key,
 	status varchar not null default 'CURRENT',
+	username varchar not null references market.users(username) on delete cascade,
 	total bigint not null default 0 check(total >= 0)
 );
 
 comment on table market.cart is 'Заказы';
 comment on column market.cart.id is 'ID записи';
 comment on column market.cart.status is 'Статус корзины (CURRENT, DELETED, SOLD)';
+comment on column market.cart.username is 'Пользователь - владелец корзины (users.username)';
 comment on column market.cart.total is 'Суммарная цена товаров в корзине';
 
 create index if not exists idx_cart_status on market.cart (status);
+create index if not exists idx_cart_username on market.cart (username);
 
 -- таблица cart_items
 create table if not exists market.cart_items(

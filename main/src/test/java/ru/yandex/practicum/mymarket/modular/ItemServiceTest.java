@@ -122,8 +122,8 @@ public class ItemServiceTest {
                         new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
                 ));
 
-        when(itemRepository.findByFiltr(search, pageable)).thenReturn(mockItems);
-        Flux<Item> items = itemRepository.findByFiltr(search, pageable);
+        when(itemRepository.findByFiltr(search, pageable, "user")).thenReturn(mockItems);
+        Flux<Item> items = itemRepository.findByFiltr(search, pageable, "user");
 
         assertEquals(2, items.collectList().block().size(), "Количество товаров должно быть 2");
         assertEquals("Название 1", items.collectList().block().getFirst().getTitle(), String.format("Название должно быть: %s", "Название 1"));
@@ -140,8 +140,8 @@ public class ItemServiceTest {
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
         Flux<Item> mockItems = Flux.fromIterable(new ArrayList<>());
 
-        when(itemRepository.findByFiltr(search, pageable)).thenReturn(mockItems);
-        Flux<Item> items = itemRepository.findByFiltr(search, pageable);
+        when(itemRepository.findByFiltr(search, pageable, "user")).thenReturn(mockItems);
+        Flux<Item> items = itemRepository.findByFiltr(search, pageable, "user");
 
         assertEquals(0, items.collectList().block().size(), "Количество товаров должно быть 0");
     }

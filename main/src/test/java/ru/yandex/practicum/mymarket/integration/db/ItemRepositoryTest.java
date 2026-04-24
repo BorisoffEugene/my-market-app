@@ -102,7 +102,7 @@ public class ItemRepositoryTest {
         String search = "Название";
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
 
-        StepVerifier.create(itemRepository.findByFiltr(search, pageable))
+        StepVerifier.create(itemRepository.findByFiltr(search, pageable, "user"))
                 .assertNext(item -> {
                     assertThat(item.getTitle().equals(item1.getTitle()));
                 })
@@ -116,7 +116,7 @@ public class ItemRepositoryTest {
         String search = "Несуществующее название";
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id"));
 
-        StepVerifier.create(itemRepository.findByFiltr(search, pageable))
+        StepVerifier.create(itemRepository.findByFiltr(search, pageable, "user"))
                 .expectNextCount(0)
                 .verifyComplete();
     }

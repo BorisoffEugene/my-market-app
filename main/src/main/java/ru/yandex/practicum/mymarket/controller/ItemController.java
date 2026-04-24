@@ -1,5 +1,10 @@
 package ru.yandex.practicum.mymarket.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -30,10 +35,11 @@ public class ItemController {
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "NO") String sort,
             @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "5") int pageSize
+            @RequestParam(defaultValue = "5") int pageSize,
+            @AuthenticationPrincipal UserDetails userDetails
     ){
-        return itemService.findByFiltr(search, sort, pageNumber, pageSize)
-                .map(paging -> {
+        return itemService.findByFiltr(search, sort, pageNumber, pageSize, userDetails != null ? userDetails.getUsername() : null)
+                .flatMap(paging -> {
                     List<ItemDto> content = new ArrayList<>(paging.getContent());
 
                     int colCount = 3;
@@ -46,22 +52,35 @@ public class ItemController {
                             .mapToObj(i -> content.subList(i * colCount, Math.min((i + 1) * colCount, content.size())))
                             .collect(Collectors.toList());
 
-                    return Rendering.view("items")
-                            .modelAttribute("search", search)
-                            .modelAttribute("sort", sort)
-                            .modelAttribute("paging", paging)
-                            .modelAttribute("items", items)
-                            .build();
+                    return ReactiveSecurityContextHolder.getContext()
+                            .map(SecurityContext::getAuthentication)
+                            .map(Authentication::isAuthenticated)
+                            .defaultIfEmpty(false)
+                            .map(isAuthenticated -> Rendering.view("items")
+                                    .modelAttribute("search", search)
+                                    .modelAttribute("sort", sort)
+                                    .modelAttribute("paging", paging)
+                                    .modelAttribute("items", items)
+                                    .modelAttribute("isAuthenticated", isAuthenticated)
+                                    .build()
+                            );
                 });
     }
 
     @GetMapping("/{id}")
-    public Mono<Rendering> getItemById(@PathVariable Long id) {
-        return itemService.findById(id)
-                .map(item -> Rendering.view("item")
-                        .modelAttribute("item", item)
-                        .build())
-                .switchIfEmpty(Mono.just(Rendering.redirectTo("/items").build()));
+    public Mono<Rendering> getItemById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        return itemService.findById(id, userDetails != null ? userDetails.getUsername() : null)
+                .flatMap(item -> ReactiveSecurityContextHolder.getContext()
+                        .map(SecurityContext::getAuthentication)
+                        .map(Authentication::isAuthenticated)
+                        .defaultIfEmpty(false)
+                        .map(isAuthenticated -> Rendering.view("item")
+                                .modelAttribute("item", item)
+                                .modelAttribute("isAuthenticated", isAuthenticated)
+                                .build()
+                        )
+                        .switchIfEmpty(Mono.just(Rendering.redirectTo("/items").build()))
+                );
     }
 
     @PostMapping
@@ -71,7 +90,8 @@ public class ItemController {
             @RequestParam(defaultValue = "NO") String sort,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "5") int pageSize,
-            @RequestParam String action
+            @RequestParam String action,
+            @AuthenticationPrincipal UserDetails userDetails
     ){
         String redirectUrl = UriComponentsBuilder.fromPath("/items")
                 .queryParam("search", search)
@@ -80,11 +100,11 @@ public class ItemController {
                 .queryParam("pageSize", pageSize)
                 .toUriString();
 
-        return cartService.changeCount(action, id).thenReturn("redirect:" + redirectUrl);
+        return cartService.changeCount(action, id, userDetails.getUsername()).thenReturn("redirect:" + redirectUrl);
     }
 
     @PostMapping("/{id}")
-    public Mono<String> doItemAction(@PathVariable Long id, @RequestParam String action) {
-        return cartService.changeCount(action, id).thenReturn("redirect:/items/" + id);
+    public Mono<String> doItemAction(@PathVariable Long id, @RequestParam String action, @AuthenticationPrincipal UserDetails userDetails) {
+        return cartService.changeCount(action, id, userDetails.getUsername()).thenReturn("redirect:/items/" + id);
     }
 }

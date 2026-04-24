@@ -39,8 +39,8 @@ public class CartServiceTest {
                 new Item("Название 2", "Описание 2", "/images/2.jpg", 2_000L, 2)
         ));
 
-        when(cartItemRepository.findCartItems()).thenReturn(mockItems);
-        Flux<Item> items = cartItemRepository.findCartItems();
+        when(cartItemRepository.findCartItems("user")).thenReturn(mockItems);
+        Flux<Item> items = cartItemRepository.findCartItems("user");
 
         assertNotNull(items, "Товары должены существовать");
         assertEquals(2, items.collectList().block().size(), "Количество товаров должно быть 2");
@@ -56,8 +56,8 @@ public class CartServiceTest {
     void testItems_NotFound() {
         Flux<Item> mockItems = Flux.fromIterable(new ArrayList<>());
 
-        when(cartItemRepository.findCartItems()).thenReturn(mockItems);
-        Flux<Item> items = cartItemRepository.findCartItems();
+        when(cartItemRepository.findCartItems("user")).thenReturn(mockItems);
+        Flux<Item> items = cartItemRepository.findCartItems("user");
 
         assertEquals(0, items.collectList().block().size(), "Количество товаров должно быть 0");
     }
@@ -66,8 +66,8 @@ public class CartServiceTest {
     @DisplayName("Получение сумарной цены товаров в корзине (товары есть)")
     void testTotal_Success() {
         Mono<Long> mockTotal = Mono.just(1_500L);
-        when(cartRepository.cartTotal()).thenReturn(mockTotal);
-        Mono<Long> total = cartRepository.cartTotal();
+        when(cartRepository.cartTotal("user")).thenReturn(mockTotal);
+        Mono<Long> total = cartRepository.cartTotal("user");
 
         assertEquals(mockTotal, total, String.format("Суммарная цена должна быть %d", mockTotal.block()));
     }
@@ -76,8 +76,8 @@ public class CartServiceTest {
     @DisplayName("Получение сумарной цены товаров в корзине (товаров нет)")
     void testTotal_NotFound() {
         Mono<Long> mockTotal = Mono.just(0L);
-        when(cartRepository.cartTotal()).thenReturn(mockTotal);
-        Mono<Long> total = cartRepository.cartTotal();
+        when(cartRepository.cartTotal("user")).thenReturn(mockTotal);
+        Mono<Long> total = cartRepository.cartTotal("user");
 
         assertEquals(mockTotal, total, String.format("Суммарная цена должна быть %d", mockTotal.block()));
     }
@@ -85,8 +85,8 @@ public class CartServiceTest {
     @Test
     @DisplayName("Продано")
     void testSold() {
-        when(cartRepository.sold()).thenReturn(Mono.empty());
-        Mono<Void> result = cartRepository.sold();
+        when(cartRepository.sold("user")).thenReturn(Mono.empty());
+        Mono<Void> result = cartRepository.sold("user");
         StepVerifier.create(result).verifyComplete();
     }
 }

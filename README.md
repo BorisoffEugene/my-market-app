@@ -1,8 +1,7 @@
-# Яндекс практикум. Мидл Java-разработчик. Модуль 2. Спринт 7
+# Яндекс практикум. Мидл Java-разработчик. Модуль 2. Спринт 8
 
 Веб-приложение "Витрина интернет-магазина".
-В седьмом спринте добавляем Redis как кэш.
-Также добавляем RESTful-сервис платежей.
+В восьмом спринте добавляем авторизацию через keycloak
 
 ## Описание
 Этот проект демонстрирует умение работать с
@@ -21,6 +20,8 @@
 * докером
 * встроенным контейнером сервлетов Netty
 * шаблонами HTML-страниц для Thymeleaf
+* Spring Security
+* Keycloak
 
 ## Функционал
 * Витрина магазина
@@ -36,6 +37,7 @@
 * PostgreSQL 18
 * Redis
 * Docker
+* Keycloack
 
 ## Технологии
 * Java 21
@@ -52,6 +54,9 @@
 * H2
 * Redis
 * OpenAPI
+* OAuth2
+* Spring Security
+* Keycloak
 
 ## Установка и запуск
 1. **Клонируйте репозиторий:**
@@ -74,19 +79,26 @@
    ```bash
    docker run --name redis-server -it --rm -p 6379:6379 redis:7.4.2-bookworm sh -c "redis-server && sleep 7 && redis-cli"
    ```
-6. **Запустите проект из командной строки:**
+6. **Запуск keycloack с помощью Docker:**
+7. ```bash
+   docker run -d -p 8082:8082 --name keycloak \ 
+   -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+   -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+   quay.io/keycloak/keycloak:26.1.3 start-dev
+   ```
+8. **Запустите проект из командной строки:**
     ```bash
     java -jar target/my-market-app-1.0.jar 
     ```
-7. **Админ страница управления товаром:**
+9. **Админ страница управления товаром:**
     ```text
     http://localhost/admin-items
     ```
-8. **Витрина товаров:**
+10. **Витрина товаров:**
     ```text
     http://localhost
     ```
-9. **Также запустить приложение можно из докера:**
+11. **Также запустить приложение можно из докера:**
     ```bash
    docker-compose up --build
     ```

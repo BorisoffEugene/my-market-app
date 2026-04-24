@@ -1,5 +1,7 @@
 package ru.yandex.practicum.mymarket.controller;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -19,18 +21,18 @@ public class CartController {
     }
 
     @GetMapping
-    public Mono<Rendering> items() {
+    public Mono<Rendering> items(@AuthenticationPrincipal UserDetails userDetails) {
         return Mono.just(
                 Rendering.view("cart")
-                        .modelAttribute("items", cartService.items())
-                        .modelAttribute("total", cartService.total())
-                        .modelAttribute("check", paymentService.check(cartService.total()))
+                        .modelAttribute("items", cartService.items(userDetails != null ? userDetails.getUsername() : null))
+                        .modelAttribute("total", cartService.total(userDetails != null ? userDetails.getUsername() : null))
+                        .modelAttribute("check", paymentService.check(cartService.total(userDetails != null ? userDetails.getUsername() : null)))
                         .build()
         );
     }
 
     @PostMapping
-    public Mono<String> doItemAction(@RequestParam Long id, @RequestParam String action) {
-        return cartService.changeCount(action, id).thenReturn("redirect:/cart/items");
+    public Mono<String> doItemAction(@RequestParam Long id, @RequestParam String action, @AuthenticationPrincipal UserDetails userDetails) {
+        return cartService.changeCount(action, id, userDetails != null ? userDetails.getUsername() : null).thenReturn("redirect:/cart/items");
     }
 }
